@@ -1,0 +1,54 @@
+#                                                                 -*- ruby -*-
+# Generate HTML slides, for S5, from Markdown input.
+#
+# See README.md for pre-requisites.
+# ---------------------------------------------------------------------------
+
+require 'rubygems'
+require 'rake/clean'
+
+SLIDE_INPUTS = FileList['ui/default/*'] + FileList['*.md']
+SASS_DIR = "sass"
+CSS_DIR = "ui/default"
+SASS_FILES = FileList["#{SASS_DIR}/*.scss"]
+CSS_OUTPUT_FILES = SASS_FILES.map do |f|
+  f.gsub(/^#{SASS_DIR}/, CSS_DIR).gsub(/\.scss$/, '.css')
+end
+
+CLEAN << CSS_OUTPUT_FILES
+CLEAN << ['*.html']
+
+task :default => :slides
+task :slides => 'sd.html'
+task :css => CSS_OUTPUT_FILES
+
+file 'sd.html' => ['Rakefile'] + CSS_OUTPUT_FILES + SLIDE_INPUTS do |t|
+  sh "pandoc -w s5 -s sq.md >sq.html"
+end
+
+# ---------------------------------------------------------------------------
+# Auto-generate CSS files from any SASS input files.
+
+
+# Figure out the name of the SCSS file necessary make a CSS file.
+def css_to_scss
+  Proc.new {|task| task.sub(/^#{CSS_DIR}/, SASS_DIR).sub(/\.css$/, '.scss')}
+end
+
+rule %r{^#{CSS_DIR}/.*\.css$} => [css_to_scss, 'Rakefile'] + SASS_FILES do |t|
+  require 'sass'
+  mkdir_p CSS_DIR
+  puts("#{t.source} -> #{t.name}")
+  Dir.chdir('sass') do
+    sass_input = File.basename(t.source)
+    engine = Sass::Engine.new(File.open(sass_input).readlines.join(''),
+                              :syntax => :scss)
+    out = File.open(File.join('..', t.name), 'w')
+    out.write("/* AUTOMATICALLY GENERATED FROM #{t.source} on #{Time.now} */\n")
+    out.write(engine.render)
+    # Force close, to force flush BEFORE running other tasks.
+    out.close
+  end
+end
+
+
