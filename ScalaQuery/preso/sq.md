@@ -1,4 +1,4 @@
-!SLIDE
+!SLIDE full-page title-page
 
 # The Scala Query ORM
 
@@ -8,23 +8,21 @@ ArdenTex, Inc.
 
 16 July, 2011
 
-!SLIDE
+!SLIDE smbullets incremental full-page transition=fade
 
 # The Scala Query ORM
 
-From *scalaquery.org*:
-
 - ScalaQuery is "an API / DSL built on top of JDBC".
 - Provides compile-time checking and type-safety for queries
-    * Database entities have static types.
+- (Database entities have static types.)
 - Composable, non-leaky abstractions
-    * Relational algebra and query comprehensions
-    * Can be composed, the way one can compose Scala's collection classes.
+- Relational algebra and query comprehensions
+- Can be composed, the way one can compose Scala's collection classes.
 - Does not rely on mutable state.
 - Supports PostgreSQL, MySQL, H2, HSQLDB/HyperSQL, Derby/JavaDB,
   MS SQL Server, MS Access, and SQLite.
   
-!SLIDE
+<!SLIDE full-page transition=scrollLeft>
 
 # Making a Connection
   

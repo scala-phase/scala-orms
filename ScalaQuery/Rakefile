@@ -18,50 +18,21 @@ CSS_DIR = "."
 
 SASS_FILES = FileList["#{SASS_DIR}/*.scss"]
 CSS_OUTPUT_FILES = SASS_FILES.map do |f|
-  f.gsub(/^#{SASS_DIR}/, CSS_DIR).gsub(/\.scss$/, '.stylesheets')
+  f.gsub(/^#{SASS_DIR}/, CSS_DIR).gsub(/\.scss$/, '.css')
 end
 
 CLEAN << CSS_OUTPUT_FILES
 CLEAN << FileList['*.html']
+PWD = File.dirname(__FILE__)
 
 task :default => :slides
 task :slides => SLIDE_HTML
 task :css => CSS_OUTPUT_FILES
-
-task :init do
-  if pygmentize = find_pygmentize
-    Albino.bin = pygmentize
-  else
-    raise StandardError.new "Can't find pygmentize in path."
-  end
+task :run => :slides do
+  sh "showoff serve"
 end
 
-file SLIDE_HTML => [:init, 'Rakefile'] + CSS_OUTPUT_FILES + SLIDE_INPUTS do |t|
-  require 'tempfile'
-  temp = Tempfile.new('slide')
-  begin
-    puts "slidedown #{SLIDE_SOURCE}"
-    _stdout = $stdout
-    $stdout = temp
-    begin
-      SlideDown.run! [SLIDE_SOURCE]
-    ensure
-      $stdout = _stdout
-    end
-
-    # Edit the resulting source: SlideDown uses the full path to the local
-    # stylesheets, which isn't portable.
-
-    dir = File.dirname(__FILE__) + "/"
-    temp.rewind
-    edited_lines = temp.readlines.map do |line|
-      line.gsub(%r|#{dir}|, "")
-    end
-    File.open(SLIDE_HTML, 'w').write(edited_lines.join(''))
-  ensure
-    temp.close
-    temp.unlink
-  end
+file SLIDE_HTML => ['Rakefile'] + CSS_OUTPUT_FILES + SLIDE_INPUTS do |t|
 end
 
 # ---------------------------------------------------------------------------
@@ -84,10 +55,10 @@ directory CSS_DIR
 # Figure out the name of the SCSS file necessary make a CSS file.
 def css_to_scss
   Proc.new {|task| task.sub(/^#{CSS_DIR}/, SASS_DIR).
-                        sub(/\.stylesheets$/, '.scss')}
+                        sub(/\.css$/, '.scss')}
 end
 
-rule %r{^#{CSS_DIR}/.*\.stylesheets$} => [css_to_scss, 'Rakefile'] + SASS_FILES do |t|
+rule %r{^#{CSS_DIR}/.*\.css$} => [css_to_scss, 'Rakefile'] + SASS_FILES do |t|
   require 'sass'
   mkdir_p CSS_DIR
   puts("#{t.source} -> #{t.name}")
@@ -102,5 +73,4 @@ rule %r{^#{CSS_DIR}/.*\.stylesheets$} => [css_to_scss, 'Rakefile'] + SASS_FILES 
     out.close
   end
 end
-
 
