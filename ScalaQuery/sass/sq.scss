@@ -1,0 +1,161 @@
+$slide_background_image: url(ardentex-logo.png);
+$header_footer_background: #008;
+$font_family: Helvetica, Verdana, Arial, sans-serif;
+$code_color: #533;
+$body_font_size: 30pt;
+$code_font_size: $body_font_size - 10pt;
+
+body
+{
+    background-color: #fff;
+    background-image: $slide_background_image;
+    background-repeat: no-repeat;
+    background-position: 30px 120px;
+    background-attachment: fixed;
+
+    color: #000;
+    font-size: $body_font_size;
+    font-family: $font_family;
+}
+
+.bmc
+{
+    margin: 100;
+}
+
+@mixin heading_common
+{
+    padding: 0;
+    font-weight: inherit;
+}
+
+h1
+{
+    @include heading_common;
+    padding-bottom: 0.5em;
+}
+
+h2
+{
+    @include heading_common;
+}
+
+h3
+{
+    @include heading_common;
+}
+
+h4
+{
+    @include heading_common;
+}
+
+.content
+{
+    margin-top: 0 !important;
+    margin-left: 5em !important;
+
+    padding-top: 2em !important;
+}
+
+html, body
+{
+    margin: 0;
+    padding: 0;
+}
+
+@mixin code_common
+{
+    font-weight: bold;
+    color: $code_color;
+}
+
+code
+{
+    @include code_common;
+}
+
+pre
+{
+    line-height: 1em;
+    padding: 0;
+    margin-left: 1em;
+    margin-top: 1em;
+    color: $code_color;
+    font-size: $code_font_size !important;
+
+    code
+    {
+        @include code_common;
+        font-size: $code_font_size !important;
+    }
+}
+
+ul
+{
+    margin-left: 5%;
+    margin-right: 7%;
+    list-style: disc;
+
+    li
+    {
+        margin-left: -1em;
+    }
+
+    ul
+    {
+        line-height: 1.1;
+
+        li
+        {
+            margin: .2em;
+            font-size: 85%;
+            list-style: square;
+        }
+    }
+}
+
+@mixin header_footer_common
+{
+    font-family: $font_family;
+}
+
+div#header
+{
+    @include header_footer_common;
+    background: #fff url(ardentex.png) -16px 0 no-repeat;
+    line-height: 1px;
+}
+
+div#footer
+{
+    @include header_footer_common;
+    background: $header_footer_background;
+    font-size: 0.5em;
+    font-weight: bold;
+    color: #AAB;
+
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 10px;
+    padding-bottom: 0;
+
+    vertical-align: bottom;
+
+    h1
+    {
+        display: inline;
+        padding: 0 1em;
+        font-size: $body_font_size - 1pt;
+    }
+
+    h2
+    {
+        display: inline;
+        padding: 0 1em;
+        font-style: italic;
+        float: right;
+        font-size: $body_font_size - 1pt;
+    }
+
+}
