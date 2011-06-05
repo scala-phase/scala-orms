@@ -6,10 +6,19 @@ $body_font_size: 24pt;
 $h1_font_size: 48pt;
 $hr_color: #008;
 $code_font_size: $body_font_size - 6pt;
+$gradient_top_color: #ffffff;
+$gradient_bottom_color: #9999ff;
+
+@mixin gradient
+{
+    background: -webkit-gradient(linear, left top, left bottom, from($gradient_top_color), to($gradient_bottom_color));
+    background: -moz-linear-gradient(top, $gradient_bottom_color, $gradient_top_color);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$gradient_bottom_color', endColorstr='$gradient_top_color');
+}
 
 body
 {
-    background-color: #fff;
+    @include gradient;
 
     color: #000;
     font-size: $body_font_size;
@@ -21,10 +30,7 @@ body
 .slide
 {
     text-align: left !important;
-    background-image: $slide_background_image;
-    background-repeat: no-repeat;
-    background-position: 30px 120px;
-    background-attachment: fixed;
+    @include gradient;
 }
 
 h1
@@ -52,6 +58,15 @@ ul
     padding-top: 2em !important;
     text-align: left;
     font-size: $body_font_size;
+
+    /* Logo image, upper left. */
+    &::before
+    {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        content: $slide_background_image;
+    }
 
     &.title-page
     {
@@ -87,13 +102,6 @@ html, body
 @mixin header_footer_common
 {
     font-family: $font_family;
-}
-
-div#header
-{
-    @include header_footer_common;
-    background: #fff url(ardentex.png) -16px 0 no-repeat;
-    line-height: 1px;
 }
 
 div#footer

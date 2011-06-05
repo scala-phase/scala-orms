@@ -12,7 +12,12 @@ To run the slideshow, you need the following bits:
 * The [ShowOff][] gem. Installing ShowOff installs its dependencies.
 * The [Sass][] gem. (I maintain the CSS files as SASS files. It makes Life
   with CSS a lot more tolerable.)
-* The Mongrel web server (optional; ShowOff will use Webrick, by default).
+
+These optional bits can also come in handy:
+
+* [PDFKit][], for generating PDF handouts.
+* [RMagick][], which allows ShowOff to resize images.
+* The Mongrel web server. (ShowOff will use Webrick, by default.)
   Install via `gem install mongrel`.
   
 Once you have accumulated all that baggage, you can build and run the
@@ -30,3 +35,5 @@ slideshow with:
 [RubyGems]: http://rubygems.org/
 [Sass]: http://sass-lang.com/
 [Rake]: http://rake.rubyforge.org/
+[PDFKit]: https://github.com/jdpace/PDFKit
+[RMagick]: http://rmagick.rubyforge.org/

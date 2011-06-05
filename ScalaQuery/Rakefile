@@ -9,9 +9,7 @@ require 'rake/clean'
 require 'slidedown'
 require 'albino'
 
-SLIDE_SOURCE = 'sq.md'
-SLIDE_HTML   = File.basename(SLIDE_SOURCE, ".md") + ".html"
-SLIDE_INPUTS = [SLIDE_SOURCE]
+SLIDE_INPUTS = FileList['preso/*.md']
 SASS_DIR = "sass"
 DATA_DIR = "data"
 CSS_DIR = "."
@@ -23,16 +21,17 @@ end
 
 CLEAN << CSS_OUTPUT_FILES
 CLEAN << FileList['*.html']
+CLEAN << "static"
 PWD = File.dirname(__FILE__)
 
 task :default => :slides
-task :slides => SLIDE_HTML
 task :css => CSS_OUTPUT_FILES
-task :run => :slides do
+task :run => :css do
   sh "showoff serve"
 end
 
-file SLIDE_HTML => ['Rakefile'] + CSS_OUTPUT_FILES + SLIDE_INPUTS do |t|
+task :slides => ['Rakefile'] + CSS_OUTPUT_FILES + SLIDE_INPUTS do |t|
+  sh "showoff static"
 end
 
 # ---------------------------------------------------------------------------
