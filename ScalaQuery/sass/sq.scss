@@ -5,7 +5,7 @@ $code_color: #533;
 $body_font_size: 24pt;
 $h1_font_size: 36pt;
 $hr_color: #008;
-$code_font_size: 16pt;
+$code_font_size: 14pt;
 $gradient_top_color: #ffffff;
 $gradient_bottom_color: #aaaaff;
 
@@ -28,6 +28,7 @@ body
 .slide
 {
     @include gradient;
+
 }
 
 h1
@@ -39,16 +40,13 @@ h1
 
 pre
 {
-    margin-left: 0 !important;
+    margin-left: 1em !important;
     margin-top: 1em;
     font-size: $code_font_size;
     background-color: transparent !important;
 
     code
     {
-        margin-left: 0 !important;
-        width: 80%;
-        wrap: auto;
     }
 }
 

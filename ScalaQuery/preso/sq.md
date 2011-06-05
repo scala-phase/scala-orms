@@ -67,6 +67,9 @@ Our schema, again:
 
     CREATE TABLE author (
       id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+      last_name      VARCHAR(50) NOT NULL,
+      first_name     VARCHAR(50) NOT NULL,
+      middle_name    VARCHAR(50) NULL,
       nationality    VARCHAR(100),
       year_of_birth  VARCHAR(4),
     )
@@ -108,15 +111,28 @@ Our schema, again:
 # The Author table in ScalaQuery
 
     @@@ scala
-    object Author extends Table[(Int, String, Option[String])]("author") {
+    object Author extends Table[
+      (Int, String, String, Option[String], String, Option[String])
+    ]("author") {
+
       // id BIGINT AUTO_INCREMENT PRIMARY KEY
       def id = column[Int]("id", O AutoInc, O NotNull, O PrimaryKey)
-
+      // last_name VARCHAR(50) NOT NULL,
+      def firstName = column[String](
+        "first_name", O NotNull, O DBType "varchar(50)"
+      )
+      // last_name VARCHAR(50) NOT NULL,
+      def lastName = column[String](
+        "last_name", O NotNull, O DBType "varchar(50)"
+      )
+      // middle_name VARCHAR(50) NULL,
+      def middleName = column[Option[String]](
+        "middle_name", O DBType "varchar(50)"x
+      )
       // nationality VARCHAR(100)
       def nationality = column[String](
         "nationality", O Default "US", O DBType "varchar(100)"
       )
-
       // year_of_birth VARCHAR(4)
       def birthYear = column[Option[String]](
         "year_of_birth", O DBType "varchar(4)"
@@ -125,9 +141,32 @@ Our schema, again:
       def * = id ~ nationality ~ birth_year
     }
 
-* `nationality` is of type `String`, because we've supplied a default, so
-  it'll always have a value.
-* `year_of_birth` is `Option[String]`, to handle the null case.
+!SLIDE transition=fade
+
+# A little more detail
+
+`first_name` is of type `String`, because it's not nullable:
+
+    @@@ scala
+    def firstName = column[String](
+      "first_name", O NotNull, O DBType "varchar(50)"
+    )
+
+`middle_name` is `Option[String]`, to handle the null case:
+
+    @@@ scala
+    // middle_name VARCHAR(50) NULL,
+    def middleName = column[Option[String]](
+      "middle_name", O DBType "varchar(50)"
+    )
+
+`nationality` is of type `String`, because we've supplied a default, so
+it'll always have a value:
+
+    @@@ scala
+    def nationality = column[String](
+      "nationality", O Default "US", O DBType "varchar(100)"
+    )
 
 !SLIDE transition=fade
 
@@ -154,7 +193,7 @@ which functions map to table columns. That's what the `def *` does:
 
       // title VARCHAR(100) NOT NULL
       def title = column[String](
-        "first", O NotNull, O DBType "varchar(100)"
+        "title", O NotNull, O DBType "varchar(100)"
       )
 
       // author_id BIGINT NOT NULL,
@@ -169,3 +208,16 @@ which functions map to table columns. That's what the `def *` does:
       // FOREIGN KEY (author_id) REFERENCES author(id)
       def fkCoAuthor = foreignKey("fk_coauthor_id", authorID, Author)(_.id)
     }
+
+!SLIDE incremental transition=blindX
+
+# A simple query
+
+Queries are `for` comprehensions.
+
+For instance, let's load the names of all authors from the US.
+
+    @@@ scala
+    val query = for (a <- Authors if a.nationality === "US") yield
+      a <- Authors
+      b <- Books if (a.id is b.authorID)

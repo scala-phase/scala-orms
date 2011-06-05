@@ -1,5 +1,8 @@
 CREATE TABLE author (
   id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+  last_name      VARCHAR(50) NOT NULL,
+  first_name     VARCHAR(50) NOT NULL,
+  middle_name    VARCHAR(50) NULL,
   nationality    VARCHAR(100),
   year_of_birth  VARCHAR(4),
 )
