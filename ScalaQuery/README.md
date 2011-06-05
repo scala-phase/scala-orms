@@ -10,7 +10,7 @@ To run the slideshow, you need the following bits:
 * [RubyGems][].
 * The [Rake][] gem.
 * The [ShowOff][] gem. Installing ShowOff installs its dependencies.
-* The [Sass][] gem. (I maintain the CSS files as SASS files. It makes Life
+* The [Sass][] gem. (I maintain the CSS files as Sass files. It makes Life
   with CSS a lot more tolerable.)
 
 These optional bits can also come in handy:
@@ -24,6 +24,18 @@ Once you have accumulated all that baggage, you can build and run the
 slideshow with:
 
     $ rake run
+
+You can also run the slideshow like this:
+
+    $ showoff serve
+
+ShowOff regenerates edited slides automatically, so you don't need to
+restart ShowOff if you're just editing the slides. Reloading the browser
+page is sufficient to display the changes. However, if you're modifying the
+Sass CSS sources, ShowOff won't know to regenerate the corresponding CSS
+files, so you have to kill ShowOff, rebuild the CSS files, and restart.
+`rake run` handles rebuilding everything that needs to be rebuilt, before
+starting ShowOff.
 
 [ShowOff][] starts a web server listening on port 9090. Surfing to that port,
 
