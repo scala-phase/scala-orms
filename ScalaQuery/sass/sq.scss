@@ -3,11 +3,11 @@ $header_footer_background: #008;
 $font_family: Helvetica, Verdana, Arial, sans-serif;
 $code_color: #533;
 $body_font_size: 24pt;
-$h1_font_size: 48pt;
+$h1_font_size: 36pt;
 $hr_color: #008;
-$code_font_size: $body_font_size - 6pt;
+$code_font_size: 16pt;
 $gradient_top_color: #ffffff;
-$gradient_bottom_color: #9999ff;
+$gradient_bottom_color: #aaaaff;
 
 @mixin gradient
 {
@@ -18,8 +18,6 @@ $gradient_bottom_color: #9999ff;
 
 body
 {
-    @include gradient;
-
     color: #000;
     font-size: $body_font_size;
     font-family: $font_family;
@@ -29,7 +27,6 @@ body
 
 .slide
 {
-    text-align: left !important;
     @include gradient;
 }
 
@@ -42,8 +39,17 @@ h1
 
 pre
 {
+    margin-left: 0 !important;
     margin-top: 1em;
     font-size: $code_font_size;
+    background-color: transparent !important;
+
+    code
+    {
+        margin-left: 0 !important;
+        width: 80%;
+        wrap: auto;
+    }
 }
 
 ul
@@ -53,8 +59,9 @@ ul
 
 .content
 {
-    margin-top: 0 !important;
-    margin-left: 5em !important;
+    margin-top: 10px !important;
+    margin-left: 2em !important;
+    margin-right: 1em !important;
     padding-top: 2em !important;
     text-align: left;
     font-size: $body_font_size;
@@ -63,8 +70,8 @@ ul
     &::before
     {
         position: absolute;
-        left: 10px;
-        top: 10px;
+        left: 0px;
+        top: 0px;
         content: $slide_background_image;
     }
 
@@ -77,6 +84,8 @@ ul
 
     ul
     {
+        margin-top: 0.5em;
+
         li
         {
             text-align: left;
@@ -89,6 +98,11 @@ ul
         border-bottom: 1px solid $hr_color;
         margin-right: 1em;
         text-align: left !important;
+    }
+
+    p
+    {
+        margin-top: 0.5em;
     }
 }
 

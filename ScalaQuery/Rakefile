@@ -37,18 +37,6 @@ end
 # ---------------------------------------------------------------------------
 # Auto-generate CSS files from any SASS input files.
 
-def find_pygmentize
-  loc = nil
-  ENV["PATH"].split(":").each do |p|
-    p = File.join(p, "pygmentize")
-    if File.exist?(p) and File.executable?(p)
-      loc = p
-      break
-    end
-  end
-  return loc
-end
-
 directory CSS_DIR
 
 # Figure out the name of the SCSS file necessary make a CSS file.
