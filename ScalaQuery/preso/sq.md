@@ -59,86 +59,84 @@ Explicitly:
       myQuery.list()(session)
     }
 
-!SLIDE transition=toss
+!SLIDE transition=fade
 
 # Tables: Schema, redux
 
-Our schema, again:
+Our schema, again (in SQLite-speak):
 
     CREATE TABLE author (
-      id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+      id             INTEGER PRIMARY KEY,
       last_name      VARCHAR(50) NOT NULL,
       first_name     VARCHAR(50) NOT NULL,
       middle_name    VARCHAR(50) NULL,
-      nationality    VARCHAR(100),
-      year_of_birth  VARCHAR(4),
-    )
+      nationality    VARCHAR(100) DEFAULT 'US',
+      year_of_birth  VARCHAR(4)
+    );
 
     CREATE TABLE book (
-      id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+      id           INTEGER PRIMARY KEY,
       title        VARCHAR(100) NOT NULL,
-      author_id    BIGINT NOT NULL,
-      co_author_id BIGINT,
+      author_id    INTEGER NOT NULL,
+      co_author_id INTEGER,
 
       FOREIGN KEY (author_id) REFERENCES author(id),
       FOREIGN KEY (co_author_id) REFERENCES author(id)
-    )
+    );
 
 !SLIDE transition=fade
 
 # Tables: Schema, redux
 
     CREATE TABLE borrower (
-      id        BIGINT AUTO_INCREMENT PRIMARY KEY,
+      id        INTEGER PRIMARY KEY,
       phone_num VARCHAR(20) NOT NULL,
       address   TEXT NOT NULL
-    )
+    );
 
     CREATE TABLE borrowal (
-      id BIGINT                AUTO_INCREMENT PRIMARY KEY,
-      book_id                  BIGINT NOT NULL,
-      borrower_id              BIGINT NOT NULL,
+      id                       INTEGER PRIMARY KEY,
+      book_id                  INTEGER NOT NULL,
+      borrower_id              INTEGER NOT NULL,
       scheduled_to_return_on   DATE NOT NULL,
       returned_on              TIMESTAMP,
       num_nonreturn_phonecalls INT,
 
       FOREIGN KEY (book_id) REFERENCES book(id),
       FOREIGN KEY (borrower_id) REFERENCES borrower(id)
-    )
+    );
 
 !SLIDE transition=fade
 
 # The Author table in ScalaQuery
 
     @@@ scala
+    import org.scalaquery.ql.basic.{BasicTable => Table}
+    import org.scalaquery.ql.TypeMapper._
+    import org.scalaquery.ql._
+
     object Author extends Table[
       (Int, String, String, Option[String], String, Option[String])
     ]("author") {
 
-      // id BIGINT AUTO_INCREMENT PRIMARY KEY
-      def id = column[Int]("id", O AutoInc, O NotNull, O PrimaryKey)
-      // last_name VARCHAR(50) NOT NULL,
+      def id = column[Int]("id", O NotNull, O PrimaryKey)
       def firstName = column[String](
         "first_name", O NotNull, O DBType "varchar(50)"
       )
-      // last_name VARCHAR(50) NOT NULL,
       def lastName = column[String](
         "last_name", O NotNull, O DBType "varchar(50)"
       )
-      // middle_name VARCHAR(50) NULL,
       def middleName = column[Option[String]](
-        "middle_name", O DBType "varchar(50)"x
+        "middle_name", O DBType "varchar(50)"
       )
-      // nationality VARCHAR(100)
       def nationality = column[String](
         "nationality", O Default "US", O DBType "varchar(100)"
       )
-      // year_of_birth VARCHAR(4)
       def birthYear = column[Option[String]](
         "year_of_birth", O DBType "varchar(4)"
       )
 
-      def * = id ~ nationality ~ birth_year
+      def * = id ~ firstName ~ lastName ~ middleName ~ nationality ~ birthYear
     }
 
 !SLIDE transition=fade
@@ -155,7 +153,6 @@ Our schema, again:
 `middle_name` is `Option[String]`, to handle the null case:
 
     @@@ scala
-    // middle_name VARCHAR(50) NULL,
     def middleName = column[Option[String]](
       "middle_name", O DBType "varchar(50)"
     )
@@ -176,10 +173,11 @@ Since the columns are just normal Scala functions, you have to tell ScalaQuery
 which functions map to table columns. That's what the `def *` does:
 
     @@@ scala
-    object Author extends Table[(Int, String, Option[String])]("author") {
+    // NOTE: SQLite tables are in upper case, and the driver doesn't upcase.
+    object Author extends Table[(Int, String, Option[String])]("AUTHOR") {
       ...
 
-      def * = id ~ nationality ~ birth_year
+      def * = id ~ firstName ~ lastName ~ middleName ~ nationality ~ birthYear
     }
 
 !SLIDE transition=fade
@@ -188,28 +186,19 @@ which functions map to table columns. That's what the `def *` does:
 
     @@@ scala
     object Book extends Table[(Int, String, Int, Option[Int])]("book") {
-      // id BIGINT AUTO_INCREMENT PRIMARY KEY
-      def id = column[Int]("id", O AutoInc, O NotNull, O PrimaryKey)
-
-      // title VARCHAR(100) NOT NULL
+      def id = column[Int]("id", O NotNull, O PrimaryKey)
       def title = column[String](
         "title", O NotNull, O DBType "varchar(100)"
       )
-
-      // author_id BIGINT NOT NULL,
       def authorID = column[Int]("author_id", O NotNull)
-
-      // co_author_id BIGINT NOT NULL,
       def coAuthorID = column[Option[Int]]("co_author_id")
-
-      // FOREIGN KEY (author_id) REFERENCES author(id)
       def fkAuthor = foreignKey("fk_author_id", authorID, Author)(_.id)
-
-      // FOREIGN KEY (author_id) REFERENCES author(id)
       def fkCoAuthor = foreignKey("fk_coauthor_id", authorID, Author)(_.id)
+
+      def * = id ~ title ~ authorID ~ coAuthorID 
     }
 
-!SLIDE incremental transition=blindX
+!SLIDE transition=fade
 
 # A simple query
 
@@ -218,6 +207,52 @@ Queries are `for` comprehensions.
 For instance, let's load the names of all authors from the US.
 
     @@@ scala
-    val query = for (a <- Authors if a.nationality === "US") yield
-      a <- Authors
-      b <- Books if (a.id is b.authorID)
+    import org.scalaquery.ql._
+    import org.scalaquery.ql.extended.SQLiteDriver.Implicit._
+
+    ...
+
+    val nameQuery = for (a <- Author if a.nationality === "US")
+      yield a.last_name ~ a.first_name
+
+Queries are *lazy*: They are built outside of a `Session` and do not touch
+the database until invoked.
+
+    @@@ scala
+    db withSession {
+      val list: List[(String, String)] = nameQuery.list
+    }
+
+!SLIDE transition=fade
+
+# A simple query: Complete example
+
+A complete working program, with our simple query:
+
+    @@@ scala
+    import org.scalaquery.ql.extended.SQLiteDriver.Implicit._
+    import org.scalaquery.session._
+    import org.scalaquery.session.Database.threadLocalSession
+
+    object ShowAuthors {
+      def main(args: Array[String]) {
+        val db = Database.forURL("jdbc:sqlite:testdb.sqlite3",
+                                 driver = "org.sqlite.JDBC")
+        val nameQuery = for {a <- Author if (a.nationality === "US")}
+                          yield a.id ~ a.lastName ~ a.firstName
+        db withSession {
+          val list: List[(Int, String, String)] = nameQuery.list
+          for ((id, last, first) <- list)
+              println("%02d: %s, %s".format(id, last, first))
+        }
+      }
+    }
+
+Output, when run against against my test database:
+
+    01: Sagan, Carl
+    02: Odersky, Martin
+    03: Spoon, Lex
+    04: Venners, Bill
+
+
