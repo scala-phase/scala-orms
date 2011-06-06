@@ -1,12 +1,26 @@
 !SLIDE title-page
 
-# The Scala Query ORM
+# ArdenTex, Inc.
+
+## The Scala Query ORM
 
 Brian Clapper, *bmc@ardentex.com*
 
 ArdenTex, Inc.
 
 *16 July, 2011*
+
+!SLIDE bullets incremental transition=fade
+
+# Beyond this point, there be dragons
+
+* *WARNING!* I am *not* a ScalaQuery expert. To prepare this talk, I did
+  what anyone else would do: Dug through the docs, Googled (a *lot*), and
+  hacked code.
+* From here on, incorrect information is my fault.
+* ... unless I can blame the documentation.
+* However, if you hurt yourself, or your machine, based on this presentation,
+  it's *your* fault.
 
 !SLIDE smbullets incremental transition=fade
 
@@ -426,7 +440,7 @@ Example run:
 
 # Parameterized Queries (Keeping Little Bobby Tables at bay)
 
-<img src="exploits_of_a_mom.png" class="illustration" markdown="1"/>
+<img src="exploits_of_a_mom.png" class="illustration">
 
 ScalaQuery uses *query templates* for parameterized queries. For example:
 
@@ -491,7 +505,7 @@ ScalaQuery can create tables:
 
 !SLIDE transition=fade
 
-# ScalaQuery Impressions
+# My Impressions
 
 ## Pros
 
@@ -505,11 +519,18 @@ ScalaQuery can create tables:
 * Potentially less readable than, say, Squeryl
 * Documentation is poor
   * No documentation on *scalaquery.org*
-  * Minimal docs on official wiki
+  * Minimal docs on official GitHub wiki
   * Additional docs scattered throughout Stefan Zeiger's blog.
-  * The mailing list archives can help.
-  * You end up spending a lot of time googling and poring through
-    the ScalaQuery source code.
+  * The mailing list archives sometimes help
+  * Prepare to spend time Googling and poring through the source code.
+
+!SLIDE smbullets incremental transition=fade
+
+# My Impressions (cont'd)
+
+* Would I use it? Sure.
+* Would it be my first choice? I'll let you know, after I see everyone
+  else's presentations.
 
 !SLIDE transition=fade
 
