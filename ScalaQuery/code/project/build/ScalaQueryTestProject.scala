@@ -58,6 +58,6 @@ class ScalaQueryTestProject(info: ProjectInfo) extends DefaultProject(info)
     val newReleaseToolsRepository = ScalaToolsSnapshots
 
     // Artifacts
-    val jline = "org.scalaquery" %% "scalaquery" % "0.9.4"
+    val sq = "org.scalaquery" %% "scalaquery" % "0.9.5-SNAPSHOT"
 
 }

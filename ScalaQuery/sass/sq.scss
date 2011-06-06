@@ -2,8 +2,9 @@ $slide_background_image: url(ardentex-logo.png);
 $header_footer_background: #008;
 $font_family: Helvetica, Verdana, Arial, sans-serif;
 $code_color: #533;
-$body_font_size: 24pt;
-$h1_font_size: 36pt;
+$body_font_size: 20pt;
+$h1_font_size: 32pt;
+$h2_font_size: $h1_font_size - 6pt;
 $hr_color: #008;
 $code_font_size: 14pt;
 $gradient_top_color: #ffffff;
@@ -36,12 +37,22 @@ h1
     font-size: $h1_font_size;
     font-weight: bold !important;
     margin-left: 1em;
+    margin-bottom: 1em;
+}
+
+h2
+{
+    font-size: $h2_font_size;
+    font-weight: bold !important;
+    margin-left: 0 !important;
+    text-align: left !important;
 }
 
 pre
 {
     margin-left: 1em !important;
-    margin-top: 1em;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
     font-size: $code_font_size;
     background-color: transparent !important;
 
@@ -50,9 +61,10 @@ pre
     }
 }
 
-ul
+a
 {
-    font-size: $body_font_size !important;
+    font-size: $body_font_size - 2pt;
+    font-style: italic;
 }
 
 .content
@@ -80,17 +92,6 @@ ul
         }
     }
 
-    ul
-    {
-        margin-top: 0.5em;
-
-        li
-        {
-            text-align: left;
-            list-style-type: disc;
-        }
-    }
-
     h1
     {
         border-bottom: 1px solid $hr_color;
@@ -101,6 +102,29 @@ ul
     p
     {
         margin-top: 0.5em;
+    }
+
+    ul
+    {
+        font-size: $body_font_size !important;
+        margin-top: 0.5em;
+        margin-left: 1em !important;
+
+        li
+        {
+            text-align: left;
+            list-style-type: disc;
+
+            ul
+            {
+                margin-top: 0 !important;
+
+                li
+                {
+                    list-style-type: square;
+                }
+            }
+        }
     }
 }
 

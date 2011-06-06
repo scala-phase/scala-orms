@@ -2,8 +2,8 @@
 
 INSERT INTO author (last_name, first_name, middle_name, year_of_birth)
   VALUES ('Sagan', 'Carl', 'Edward', '1934');
-INSERT INTO author (last_name, first_name, year_of_birth)
-  VALUES ('Odersky', 'Martin', '1958');
+INSERT INTO author (last_name, first_name, nationality, year_of_birth)
+  VALUES ('Odersky', 'Martin', 'DE', '1958');
 INSERT INTO author (last_name, first_name) VALUES ('Spoon', 'Lex');
 INSERT INTO author (last_name, first_name) VALUES ('Venners', 'Bill');
 

@@ -1,6 +1,8 @@
 This directory contains source for the [ScalaQuery][] portion of the
 [PHASE][] talk on [Scala][] ORMs (June 16, 2011).
 
+# Slides
+
 The slides are written in Markdown and are intended to be run through
 (i.e., served by) [ShowOff][].
 
@@ -37,7 +39,15 @@ files, so you have to kill ShowOff, rebuild the CSS files, and restart.
 `rake run` handles rebuilding everything that needs to be rebuilt, before
 starting ShowOff.
 
-[ShowOff][] starts a web server listening on port 9090. Surfing to that port,
+[ShowOff][] starts a web server listening on port 9090. Surf to that port,
+to run the slide show.
+
+# Sample Code
+
+The `code` subdirectory contains an [SBT][] project with some sample code
+that demonstrates the ScalaQuery concepts discussed in this talk. All code
+was tested against a locally built 0.9.5-SNAPSHOT version of ScalaQuery,
+compiled against Scala 2.8.1.
 
 [ScalaQuery]: http://scalaquery.org/
 [ShowOff]: https://github.com/schacon/showoff
@@ -49,3 +59,4 @@ starting ShowOff.
 [Rake]: http://rake.rubyforge.org/
 [PDFKit]: https://github.com/jdpace/PDFKit
 [RMagick]: http://rmagick.rubyforge.org/
+[SBT]: http://code.google.com/p/simple-build-tool
