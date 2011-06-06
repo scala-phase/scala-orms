@@ -9,13 +9,17 @@ CREATE TABLE author (
 
 CREATE TABLE book (
   id           BIGINT AUTO_INCREMENT PRIMARY KEY,
-  title        VARCHAR(100) NOT NULL,
-  author_id    BIGINT NOT NULL,
-  co_author_id BIGINT,
-
-  FOREIGN KEY (author_id) REFERENCES author(id),
-  FOREIGN KEY (co_author_id) REFERENCES author(id)
+  title        VARCHAR(100) NOT NULL
 );
+
+CREATE TABLE bookauthor (
+  book_id   BIGINT NOT NULL,
+  author_id BIGINT NOT NULL,
+
+  PRIMARY KEY (book_id, author_id),
+  FOREIGN KEY (author_id) REFERENCES author(id),
+  FOREIGN KEY (book_id) REFERENCES book(id)
+);  
 
 CREATE TABLE borrower (
   id        BIGINT AUTO_INCREMENT PRIMARY KEY,

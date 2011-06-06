@@ -29,13 +29,18 @@ CREATE TABLE author (
 DROP TABLE IF EXISTS book;
 CREATE TABLE book (
   id           INTEGER PRIMARY KEY,
-  title        VARCHAR(100) NOT NULL,
-  author_id    INTEGER NOT NULL,
-  co_author_id INTEGER,
-
-  FOREIGN KEY (author_id) REFERENCES author(id),
-  FOREIGN KEY (co_author_id) REFERENCES author(id)
+  title        VARCHAR(100) NOT NULL
 );
+
+DROP TABLE IF EXISTS bookauthor;
+CREATE TABLE bookauthor (
+  book_id INTEGER NOT NULL,
+  author_id INTEGER NOT NULL,
+
+  PRIMARY KEY (book_id, author_id),
+  FOREIGN KEY (author_id) REFERENCES author(id),
+  FOREIGN KEY (book_id) REFERENCES book(id)
+);  
 
 DROP TABLE IF EXISTS borrower;
 CREATE TABLE borrower (
