@@ -131,7 +131,7 @@ For simple tables, use the `BasicTable` type:
 
     import org.scalaquery.ql.basic.{BasicTable => Table}
 
-For databases supported extended features, use `ExtendedTable`:
+For databases supporting extended features, use `ExtendedTable`:
 
     import org.scalaquery.ql.extended.{ExtendedTable => Table}
     
