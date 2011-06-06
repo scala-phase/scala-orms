@@ -6,6 +6,8 @@ This directory contains source for the [ScalaQuery][] portion of the
 The slides are written in Markdown and are intended to be run through
 (i.e., served by) [ShowOff][].
 
+## Running the slide show from source
+
 To run the slideshow, you need the following bits:
 
 * A [Ruby][] installation. 1.8.7 will do fine.
@@ -41,6 +43,11 @@ starting ShowOff.
 
 [ShowOff][] starts a web server listening on port 9090. Surf to that port,
 to run the slide show.
+
+## Static Slideshow
+
+For convenience (and so you don't have to load up all that Ruby stuff),
+a static, pre-generated version of the slide show is in the `static` directory.
 
 # Sample Code
 

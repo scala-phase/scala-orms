@@ -29,7 +29,8 @@ ArdenTex, Inc.
   
 ScalaQuery requires an underlying JDBC connection.
 
-All DB calls go through a `Session`, which is obtained from a `Database`:
+All DB calls go through a `Session`, which is obtained from a `Database`,
+using a standard JDBC URL.
 
     import org.scalaquery.session._
     import org.scalaquery.session.Database.threadLocalSession
@@ -59,7 +60,7 @@ Explicitly:
 
 !SLIDE transition=fade
 
-# Tables: Schema, redux
+# Schema, redux
 
 Our schema, again (in SQLite-speak):
 
@@ -88,7 +89,7 @@ Our schema, again (in SQLite-speak):
 
 !SLIDE transition=fade
 
-# Tables: Schema, redux
+# Schema, redux
 
     CREATE TABLE borrower (
       id        INTEGER PRIMARY KEY,
@@ -185,7 +186,7 @@ via ScalaQuery. They can be omitted, if you create tables another way.
 
 !SLIDE transition=fade
 
-# Telling ScalaQuery which `defs` are columns
+# Telling ScalaQuery which methods correspond to columns
 
 Since the columns are just normal Scala functions, you have to tell ScalaQuery
 which functions map to table columns. That's what the `def *` does:
@@ -423,22 +424,22 @@ Example run:
     
 !SLIDE transition=fade
 
-# Parameterized Statements
+# Parameterized Queries (Keeping Little Bobby Tables at bay)
 
-ScalaQuery uses what it calls *query templates* for parameterized queries.
-An example is the easiest way to demonstrate:
+<img src="exploits_of_a_mom.png" class="illustration" markdown="1"/>
+
+ScalaQuery uses *query templates* for parameterized queries. For example:
 
     object ShowAuthorsByNameAndCountry {
       def run(lastName: String, nationality: String) = {
         // Create a parameterized query template with one parameter.
-        val qt = for {lnc ~ cc <- Parameters[String, String]
+        val qt = for {lnc ~ cc  <-  Parameters[String, String]
                       a <- Author if a.lastName === lnc && a.nationality === cc}
                      yield a.id ~ a.lastName ~ a.firstName ~ a.nationality
         
         // Instantiate and run.
-        val q = qt((lastName, countryCode))
         db withSession {
-          for (rs <- q.list)
+          for (rs <- qt((lastName, countryCode)))
             printf("%02d: %s %s (%s)\n", rs._1, rs._3, rs._2, rs._4)
         }
     }

@@ -17,6 +17,14 @@ $gradient_bottom_color: #aaaaff;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$gradient_bottom_color', endColorstr='$gradient_top_color');
 }
 
+@mixin centered
+{
+    /* Note: You MUST set a width. */
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
 body
 {
     color: #000;
@@ -90,6 +98,12 @@ a
         h1
         {
         }
+    }
+
+    img.illustration
+    {
+        display: block;
+        @include centered;
     }
 
     h1
