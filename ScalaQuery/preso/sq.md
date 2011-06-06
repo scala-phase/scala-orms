@@ -30,7 +30,6 @@ ScalaQuery requires an underlying JDBC connection.
 
 All DB calls go through a `Session`, which is obtained from a `Database`:
 
-    @@@ scala
     import org.scalaquery.session._
     import org.scalaquery.session.Database.threadLocalSession
 
@@ -45,7 +44,6 @@ All DB calls go through a `Session`, which is obtained from a `Database`:
 
 Implicitly:
 
-    @@@ scala
     val myQuery = ...
     db withSession {
       myQuery.list()
@@ -53,7 +51,6 @@ Implicitly:
     
 Explicitly:
 
-    @@@ scala
     val myQuery = ...
     db withSession { session =>
       myQuery.list()(session)
@@ -110,14 +107,13 @@ Our schema, again (in SQLite-speak):
 
 # The Author table in ScalaQuery
 
-    @@@ scala
     import org.scalaquery.ql.basic.{BasicTable => Table}
     import org.scalaquery.ql.TypeMapper._
     import org.scalaquery.ql._
 
     object Author extends Table[
       (Int, String, String, Option[String], String, Option[String])
-    ]("author") {
+    ]("AUTHOR") {
 
       def id = column[Int]("id", O NotNull, O PrimaryKey)
       def firstName = column[String](
@@ -145,14 +141,12 @@ Our schema, again (in SQLite-speak):
 
 `first_name` is of type `String`, because it's not nullable:
 
-    @@@ scala
     def firstName = column[String](
       "first_name", O NotNull, O DBType "varchar(50)"
     )
 
 `middle_name` is `Option[String]`, to handle the null case:
 
-    @@@ scala
     def middleName = column[Option[String]](
       "middle_name", O DBType "varchar(50)"
     )
@@ -160,7 +154,6 @@ Our schema, again (in SQLite-speak):
 `nationality` is of type `String`, because we've supplied a default, so
 it'll always have a value:
 
-    @@@ scala
     def nationality = column[String](
       "nationality", O Default "US", O DBType "varchar(100)"
     )
@@ -172,7 +165,6 @@ it'll always have a value:
 Since the columns are just normal Scala functions, you have to tell ScalaQuery
 which functions map to table columns. That's what the `def *` does:
 
-    @@@ scala
     // NOTE: SQLite tables are in upper case, and the driver doesn't upcase.
     object Author extends Table[(Int, String, Option[String])]("AUTHOR") {
       ...
@@ -184,7 +176,6 @@ which functions map to table columns. That's what the `def *` does:
 
 # The Book table, with Foreign Keys
 
-    @@@ scala
     object Book extends Table[(Int, String, Int, Option[Int])]("book") {
       def id = column[Int]("id", O NotNull, O PrimaryKey)
       def title = column[String](
@@ -206,7 +197,6 @@ Queries are `for` comprehensions.
 
 For instance, let's load the names of all authors from the US.
 
-    @@@ scala
     import org.scalaquery.ql._
     import org.scalaquery.ql.extended.SQLiteDriver.Implicit._
 
@@ -218,7 +208,6 @@ For instance, let's load the names of all authors from the US.
 Queries are *lazy*: They are built outside of a `Session` and do not touch
 the database until invoked.
 
-    @@@ scala
     db withSession {
       val list: List[(String, String)] = nameQuery.list
     }
@@ -229,7 +218,6 @@ the database until invoked.
 
 A complete working program, with our simple query:
 
-    @@@ scala
     import org.scalaquery.ql.extended.SQLiteDriver.Implicit._
     import org.scalaquery.session._
     import org.scalaquery.session.Database.threadLocalSession

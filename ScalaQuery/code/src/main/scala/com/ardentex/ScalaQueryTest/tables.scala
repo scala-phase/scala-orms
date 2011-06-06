@@ -4,9 +4,9 @@ import org.scalaquery.ql.basic.{BasicTable => Table}
 import org.scalaquery.ql.TypeMapper._
 import org.scalaquery.ql._
 
-object Author
-extends Table[(Int, String, String, Option[String], String, Option[String])]("AUTHOR")
-{
+object Author extends Table[
+(Int, String, String, Option[String], String, Option[String])
+]("AUTHOR") {
     def id = column[Int]("id", O NotNull, O PrimaryKey)
 
     def firstName = column[String]("first_name",
