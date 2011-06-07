@@ -21,6 +21,7 @@ ArdenTex, Inc.
 * ... unless I can blame the documentation.
 * However, if you hurt yourself, or your machine, based on this presentation,
   it's *your* fault.
+* ... unless you can blame the documentation.
 
 !SLIDE smbullets incremental transition=fade
 
@@ -30,11 +31,12 @@ ArdenTex, Inc.
 * ScalaQuery is "an API / DSL built on top of JDBC".
 * Provides compile-time checking and type-safety for queries
   * Database entities have static types.
-* Relational algebra and query comprehensions
+* Uses relational algebra and query comprehensions
 * Can be composed, the way one can compose Scala's collection classes.
 * Does not rely on mutable state.
 * Supports PostgreSQL, MySQL, H2, HSQLDB/HyperSQL, Derby/JavaDB,
-  MS SQL Server, MS Access, and SQLite.
+  MS SQL Server, MS Access, and SQLite. Other RDBMs are supported, but
+  with possibly reduced functionality.
   
 !SLIDE transition=fade
 
@@ -221,7 +223,7 @@ Note the foreign keys:
 
 !SLIDE transition=fade
 
-# A simple query
+# Queries
 
 Queries are *for comprehensions*.
 
@@ -233,7 +235,14 @@ For instance, let's load the names of all authors from the US.
     ...
 
     val nameQuery = for (a <- Author if a.nationality === "US")
-      yield a.last_name ~ a.first_name
+      yield a.lastName ~ a.firstName
+
+The tilde construct (`a.lastName ~ a.firstName`) is a *column projection*.
+Only those columns are returned.
+
+!SLIDE transition=fade
+
+# Queries
 
 There are also convenience functions for filtering. e.g.:
 
@@ -250,7 +259,7 @@ the database until invoked.
 
 # A simple query: Complete example
 
-A complete working program, with our simple query:
+A complete working program, with the name query.
 
     import org.scalaquery.ql.basic.BasicDriver.Implicit._
     import org.scalaquery.session._
@@ -304,7 +313,6 @@ Issues with explicit joins:
 
 * Explicit multi-way joins are broken. See this May 27 thread:
   <https://groups.google.com/forum/#!topic/scalaquery/lgI1ADShEM8>.
-  "You'd have to do them pair-wise, using sub-selects as necessary."
 * The syntax for explicit joins can quickly get complicated.
 * Implicit joins are generally easier to read and construct.
 
@@ -317,8 +325,8 @@ titles (since that would require a multi-way explicit join, which is broken):
       for {Join(a, ab) <- Author innerJoin BookAuthor on (_.id is _.authorID)}
         yield a.lastName ~ a.firstName
 
-Note that, in the above, authors with multiple books will occur multiple
-times in the result set.
+Note that, in the above query, authors with multiple books will occur
+multiple times in the result set.
 
 !SLIDE transition=fade
 
@@ -487,7 +495,6 @@ ScalaQuery can create tables:
 
 * Powerful
 * Strong type safety
-* Monadic
 * Highly composable
 
 ## Cons
@@ -519,3 +526,6 @@ ScalaQuery can create tables:
 * The Google Groups group: <http://groups.google.com/group/scalaquery>
 * "scalaquery" tag on StackOverflow:
   <http://stackoverflow.com/questions/tagged/scalaquery> (not much there)
+
+*I created this presentation with Scott Chacon's ShowOff tool. See
+<https://github.com/schacon/showoff>.*
