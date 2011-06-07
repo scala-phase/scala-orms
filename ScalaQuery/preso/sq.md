@@ -26,15 +26,14 @@ ArdenTex, Inc.
 
 # The Scala Query ORM
 
-- Written by Stefan Zeiger
-- ScalaQuery is "an API / DSL built on top of JDBC".
-- Provides compile-time checking and type-safety for queries
-- (Database entities have static types.)
-- Composable, non-leaky abstractions
-- Relational algebra and query comprehensions
-- Can be composed, the way one can compose Scala's collection classes.
-- Does not rely on mutable state.
-- Supports PostgreSQL, MySQL, H2, HSQLDB/HyperSQL, Derby/JavaDB,
+* Written by Stefan Zeiger
+* ScalaQuery is "an API / DSL built on top of JDBC".
+* Provides compile-time checking and type-safety for queries
+  * Database entities have static types.
+* Relational algebra and query comprehensions
+* Can be composed, the way one can compose Scala's collection classes.
+* Does not rely on mutable state.
+* Supports PostgreSQL, MySQL, H2, HSQLDB/HyperSQL, Derby/JavaDB,
   MS SQL Server, MS Access, and SQLite.
   
 !SLIDE transition=fade
@@ -76,7 +75,7 @@ Explicitly:
 
 # Schema, redux
 
-Our schema, again (in SQLite-speak):
+Part of our schema (in SQLite-speak):
 
     CREATE TABLE author (
       id             INTEGER PRIMARY KEY,
@@ -103,29 +102,7 @@ Our schema, again (in SQLite-speak):
 
 !SLIDE transition=fade
 
-# Schema, redux
-
-    CREATE TABLE borrower (
-      id        INTEGER PRIMARY KEY,
-      phone_num VARCHAR(20) NOT NULL,
-      address   TEXT NOT NULL
-    );
-
-    CREATE TABLE borrowal (
-      id                       INTEGER PRIMARY KEY,
-      book_id                  INTEGER NOT NULL,
-      borrower_id              INTEGER NOT NULL,
-      scheduled_to_return_on   DATE NOT NULL,
-      returned_on              TIMESTAMP,
-      num_nonreturn_phonecalls INT,
-
-      FOREIGN KEY (book_id) REFERENCES book(id),
-      FOREIGN KEY (borrower_id) REFERENCES borrower(id)
-    );
-
-!SLIDE transition=fade
-
-# Tables in ScalaQuery
+# Mapping tables in ScalaQuery
 
 For simple tables, use the `BasicTable` type:
 
@@ -147,9 +124,8 @@ ScalaQuery driver for the underlying database.
     import org.scalaquery.ql.TypeMapper._
     import org.scalaquery.ql._
 
-    object Author extends Table[
-      (Int, String, String, Option[String], String, Option[String])
-    ]("AUTHOR") {
+    object Author
+    extends Table[(Int, String, String, Option[String], String, Option[String])]("AUTHOR") {
 
       def id = column[Int]("id", O NotNull, O PrimaryKey, O AutoInc)
       def firstName = column[String](
@@ -440,14 +416,14 @@ Example run:
 
 # Parameterized Queries (Keeping Little Bobby Tables at bay)
 
-<img src="exploits_of_a_mom.png" class="illustration">
+<img src="exploits_of_a_mom.png" class="illustration" note="final slash needed"/>
 
 ScalaQuery uses *query templates* for parameterized queries. For example:
 
     object ShowAuthorsByNameAndCountry {
       def run(lastName: String, nationality: String) = {
         // Create a parameterized query template with one parameter.
-        val qt = for {lnc ~ cc  <-  Parameters[String, String]
+        val qt = for {lnc ~ cc <- Parameters[String, String]
                       a <- Author if a.lastName === lnc && a.nationality === cc}
                      yield a.id ~ a.lastName ~ a.firstName ~ a.nationality
         
