@@ -17,6 +17,7 @@ Jamie Allen, *jallen@chariotsolutions.com*, @jamie_allen
 # Querulous
 
 * Written by Matt Freels, Nick Kallen, Robey Pointer, Utkarsh Srivastava and Ed Caesar at Twitter
+* Exposes SQL directly.  No DSL.  Sits on top of JDBC.  Can call stored procs.
 * Designed primarily to meet the extreme demands of FlockDB (Twitter's distributed, fault-tolerant graph database), which demands very low-latency (sub-millisecond) response times for individual queries.
 * A very minimalist database querying library.  Any excessive indirection would be intolerable in this environment.
 * Designed for querying databases at low-latency, massive scale and with easy operability.
@@ -46,6 +47,17 @@ Jamie Allen, *jallen@chariotsolutions.com*, @jamie_allen
 * Querulous achieves modularity by providing an "injection point" for the programmer to layer on custom functionality.
 
 * "Why I Love Everything You Hate About Java"
+
+!SLIDE transition=fade
+
+# Querulous is MySQL-Specific!
+
+* There are several generic JDBC forks on GitHub, including:
+** Rose Toomey, forked from
+** Brendan McAdams, forked from
+** Rhys Keepence
+
+* I'm using Rose's querulous-generic fork for the purposes of this talk, and SQLite as the database.
 
 !SLIDE transition=fade
 
@@ -87,6 +99,7 @@ Jamie Allen, *jallen@chariotsolutions.com*, @jamie_allen
 * This presentation and some sample code can be found at
   <https://github.com/scala-phase/scala-orms/tree/master/Querulous>
 * Querulous's GitHub repo: <https://github.com/twitter/querulous>
+* Rose's querulous-generic GitHub repo: <https://github.com/novus/querulous-generic>
 * Twitter Blog: Why I Love Everything You Hate About Java: <http://magicscalingsprinkles.wordpress.com/2010/02/08/why-i-love-everything-you-hate-about-java/>
 * No Google Groups group
 * No tag on StackOverflow
