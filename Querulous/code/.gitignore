@@ -1,0 +1,7 @@
+code.iml
+lib/
+lib_managed/
+project/boot/
+project/build.properties
+project/build/target/
+target/
