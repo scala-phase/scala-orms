@@ -38,6 +38,11 @@ object Main {
                                 "password"),
     new MySQLInnoDBAdapter))
 
+  transaction {
+    LibrarySchema.drop
+    LibrarySchema.create
+  }
+
   def main(args: Array[String]) {
     val q = new Querier()
     //q.someQuery()
@@ -53,10 +58,17 @@ class Querier() {
     () => Session.currentSession.setLogger( (s: String) => println(s) )
   }
 
+  def countBookTitles(): Long = {
+    from(bookTb) ( b =>
+      compute(countDistinct(b.title))
+    )
+  }
+
   def bookTitles(): List[String] = {
     transaction {
       from(bookTb) ( b =>
         select(b.title)
+        orderBy(b.title)
       ).toList
     }
   }
