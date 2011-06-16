@@ -1,7 +1,5 @@
 !SLIDE title-page
 
-# Chariot Solutions
-
 ## The Querulous ORM
 
 Jamie Allen, *jallen@chariotsolutions.com*, @jamie_allen
