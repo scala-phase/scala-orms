@@ -3,8 +3,8 @@ package prasinous
 import com.mongodb.casbah.commons.Logging
 import net.lag.configgy.Config
 import com.mongodb.casbah.Imports._
-import com.mongodb.casbah.MongoConnection
 import com.mongodb.{MongoOptions, ServerAddress, Mongo}
+import com.mongodb.casbah.{MongoDB, MongoConnection}
 
 trait Conf extends Logging {
 
@@ -29,16 +29,16 @@ trait Conf extends Logging {
 
 class MissingPropertyError(property: String) extends Error("Missing property: %s".format(property))
 
-object Mongo extends Conf {
-  private def mongo(name: String): (MongoConnection, MongoDB) = {
+object DB extends Conf {
+  private def connect(name: String): MongoDB = {
     val conn = new MongoConnection(
       new Mongo(
       new ServerAddress(
-        Configuration.getString("mongodb.hostname".format(name)).getOrElse(
-          throw new IllegalArgumentException("'mongodb.%s.%s' needs a 'hostname' setting".format(name))
+        Configuration.getString("mongodb.%s.hostname".format(name)).getOrElse(
+          throw new IllegalArgumentException("'mongodb.%s' needs a 'hostname' setting".format(name))
         ),
-        Configuration.getInt("mongodb.port".format(name)).getOrElse(
-          throw new IllegalArgumentException("'mongodb' needs a 'port' setting".format(name))
+        Configuration.getInt("mongodb.%s.port".format(name)).getOrElse(
+          throw new IllegalArgumentException("'mongodb.%s' needs a 'port' setting".format(name))
         )
       ), {
         val opts = new MongoOptions
@@ -48,11 +48,45 @@ object Mongo extends Conf {
       }
       )
     )
-    conn -> conn(Configuration.getString("mongodb.db".format(name)).
-      getOrElse(throw new IllegalArgumentException("'mongodb' needs a 'db' setting".format(name))))
+    conn(Configuration.getString("mongodb.%s.db".format(name)).
+      getOrElse(throw new IllegalArgumentException("'mongodb.%s' needs a 'db' setting".format(name))))
   }
 
-  val Library = mongo("library")._2
+  val LibraryDB = connect("library")
+}
+
+object collections extends Logging {
+
+  import prasinous.DB._
+
+  implicit def usefulImplicitsForDefiningCollections[T <: MongoCollection](coll: T) = new {
+    def index(dbo: DBObject): T = {
+      val opts = MongoDBObject(
+        "name" -> "idx_%d".format(System.nanoTime),
+        "unique" -> false,
+        "background" -> true)
+      log.info("index: %s by: %s", coll.getName, dbo)
+      coll.underlying.ensureIndex(dbo, opts)
+      coll
+    }
+
+    def uniqueIndex(dbo: DBObject): T = {
+      log.info("unique index: %s by: %s", coll.getName, dbo)
+      val opts = MongoDBObject(
+        "name" -> "unq_idx_%d".format(System.nanoTime),
+        "unique" -> true,
+        "background" -> true)
+      coll.underlying.ensureIndex(dbo, opts)
+      coll
+    }
+  }
+
+  val author = LibraryDB("author").uniqueIndex(MongoDBObject("firstName" -> 1, "lastName" -> 1))
+  val book = LibraryDB("book").uniqueIndex(MongoDBObject("title" -> 1))
+  val bookAuthor = LibraryDB("book_author").uniqueIndex(MongoDBObject("bookId" -> 1, "authorId" -> 1))
+  val borrower = LibraryDB("borrower")
+  val borrowal = LibraryDB("borrowal").uniqueIndex(MongoDBObject("bookId" -> 1, "borrowerId" -> 1, "scheduledToReturnOn" -> 1))
+
 }
 
 

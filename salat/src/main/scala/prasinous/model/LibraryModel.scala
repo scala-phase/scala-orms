@@ -19,7 +19,11 @@ case class Author(@Key("_id") id: ObjectId = new ObjectId,
                   nationality: String = "US",
                   yearOfBirth: Int)  {
 
-  @Persist lazy val displayName = "%s %s".format(firstName, lastName)
+  // contrived example of using @Persist to allow a value outside the case class contructor to be
+  /// serialized when an instance of Author is changed into a DBObject
+  @Persist lazy val displayName = "%s%s %s (%s) [%d - ]".format(firstName, " %s".format(middleName.getOrElse("")), lastName,
+    nationality, yearOfBirth)
+
 }
 
 
@@ -71,5 +75,9 @@ case class Borrowal(@Key("_id") id: ObjectId = new ObjectId,
                     bookId: ObjectId,
                     borrowerId: ObjectId,
                     scheduledToReturnOn: DateTime,
-                    returnedOn: Option[DateTime],
-                    numNonReturnPhoneCalls: Int = 0)
+                    returnedOn: Option[DateTime] = None,
+                    numNonReturnPhoneCalls: Int = 0)  {
+
+  def phoneCallNotReturned = copy(numNonReturnPhoneCalls = numNonReturnPhoneCalls + 1)
+
+}
