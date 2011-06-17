@@ -82,7 +82,7 @@ object collections extends Logging {
   }
 
   val author = LibraryDB("author").uniqueIndex(MongoDBObject("firstName" -> 1, "lastName" -> 1))
-  val book = LibraryDB("book").uniqueIndex(MongoDBObject("title" -> 1))
+  val book = LibraryDB("books").uniqueIndex(MongoDBObject("title" -> 1))
   val bookAuthor = LibraryDB("book_author").uniqueIndex(MongoDBObject("bookId" -> 1, "authorId" -> 1))
   val borrower = LibraryDB("borrower")
   val borrowal = LibraryDB("borrowal").uniqueIndex(MongoDBObject("bookId" -> 1, "borrowerId" -> 1, "scheduledToReturnOn" -> 1))

@@ -20,6 +20,11 @@ object AuthorDAO extends SalatDAO[Author, ObjectId](collection = db.author) {
     ids(MongoDBObject("firstName" -> firstName, "lastName" -> lastName)).firstOption
   }
 
+  def addBook(a: Author, b: Book) = {
+    BookDAO.insert(b)
+    bookAuthor.insert(BookAuthor(bookId = b.id, authorId = a.id))
+  }
+
   def booksByAuthor(author: Author): List[Book] = {
     val bookIds = bookAuthor.primitiveProjectionsByParentId[ObjectId](parentId = author.id, field = "bookId")
         BookDAO.find(ref = MongoDBObject("_id" -> MongoDBObject("$in" -> MongoDBList(bookIds: _*))))

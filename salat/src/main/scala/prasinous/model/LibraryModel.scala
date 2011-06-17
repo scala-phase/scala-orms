@@ -16,13 +16,12 @@ case class Author(@Key("_id") id: ObjectId = new ObjectId,
                   lastName: String,
                   firstName: String,
                   middleName: Option[String] = None,
-                  nationality: String = "US",
-                  yearOfBirth: Int)  {
+                  nationality: Option[String] = None,
+                  yearOfBirth: Option[Int] = None)  {
 
   // contrived example of using @Persist to allow a value outside the case class contructor to be
   /// serialized when an instance of Author is changed into a DBObject
-  @Persist lazy val displayName = "%s%s %s (%s) [%d - ]".format(firstName, " %s".format(middleName.getOrElse("")), lastName,
-    nationality, yearOfBirth)
+  @Persist lazy val displayName = "%s %s".format(firstName, lastName)
 
 }
 
