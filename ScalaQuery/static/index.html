@@ -1,0 +1,643 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>The ScalaQuery ORM</title>
+
+  <link rel="stylesheet" href="./css/reset.css" type="text/css"/>
+  <link rel="stylesheet" href="./css/showoff.css" type="text/css"/>
+
+  <script type="text/javascript" src="./js/jquery-1.4.2.min.js"></script>
+  <script type="text/javascript" src="./js/jquery.cycle.all.js"></script>
+	<script type="text/javascript" src="./js/jquery-print.js"></script>
+  <script type="text/javascript" src="./js/jquery.batchImageLoad.js"></script>
+
+  <script type="text/javascript" src="./js/jquery.doubletap-0.1.js"></script>
+
+  <script type="text/javascript" src="./js/fg.menu.js"></script>
+  <script type="text/javascript" src="./js/showoff.js"></script>
+  <script type="text/javascript" src="./js/jTypeWriter.js"> </script>
+  <script type="text/javascript" src="./js/sh_main.min.js"></script>
+  <script type="text/javascript" src="./js/core.js"></script>
+  <script type="text/javascript" src="./js/showoffcore.js"></script>
+
+  <link type="text/css" href="./css/fg.menu.css" media="screen" rel="stylesheet" />
+  <link type="text/css" href="./css/theme/ui.all.css" media="screen" rel="stylesheet" />
+  <link type="text/css" href="./css/sh_style.css" rel="stylesheet" >
+
+  
+    <link rel="stylesheet" href="file/sq.css" type="text/css"/>
+  
+
+  
+
+  <script type="text/javascript">
+  $(function(){
+    setupPreso(false, './');
+  });
+  </script>
+</head>
+
+<body>
+
+
+<a tabindex="0" href="#search-engines" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all" id="navmenu"><span class="ui-icon ui-icon-triangle-1-s"></span>slides</a>
+<div id="navigation" class="hidden"></div>
+
+<div id="help">
+  <table>
+    <tr><td class="key">space, &rarr;</td><td>next slide</td></tr>
+    <tr><td class="key">&larr;</td><td>previous slide</td></tr>
+    <tr><td class="key">d</td><td>debug mode</td></tr>
+    <tr><td class="key">## &lt;ret&gt;</td><td>go to slide #</td></tr>
+    <tr><td class="key">c</td><td>table of contents (vi)</td></tr>
+    <tr><td class="key">f</td><td>toggle footer</td></tr>
+    <tr><td class="key">r</td><td>reload slides</td></tr>
+    <tr><td class="key">z</td><td>toggle help (this)</td></tr>
+  </table>
+</div>
+
+<div class="buttonNav">
+  <input type="submit" onClick="prevStep();" value="prev"/>
+  <input type="submit" onClick="nextStep();" value="next"/>
+</div>
+
+<div id="preso">loading presentation...</div>
+<div id="footer">
+  <span id="slideInfo"></span>
+  <span id="debugInfo"></span>
+  <span id="notesInfo"></span>
+</div>
+
+<div id="slides" class="offscreen" style="display:none;">
+<div class="slide" data-transition="none"><div class="content title-page" ref="preso/sq/1">
+<h1>ArdenTex, Inc.</h1>
+
+<h2>The Scala Query ORM</h2>
+
+<p>Brian Clapper, <em>bmc@ardentex.com</em></p>
+
+<p>ArdenTex, Inc.</p>
+
+<p><em>16 July, 2011</em></p>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content bullets incremental" ref="preso/sq/2">
+<h1>Beyond this point, there be dragons</h1>
+
+<ul>
+<li><em>WARNING!</em> I am <em>not</em> a ScalaQuery expert. To prepare this talk, I did
+what anyone else would do: Dug through the docs, Googled (a <em>lot</em>), and
+hacked code.</li>
+<li>From here on, incorrect information is my fault.</li>
+<li>... unless I can blame the documentation.</li>
+<li>However, if you hurt yourself, or your machine, based on this presentation,
+it's <em>your</em> fault.</li>
+<li>... unless you can blame the documentation.</li>
+</ul>
+
+</div>
+</div><div class="slide" data-transition="fade"><div class="content smbullets incremental" ref="preso/sq/3">
+<h1>The Scala Query ORM</h1>
+
+<ul>
+<li>Written by Stefan Zeiger</li>
+<li>ScalaQuery is "an API / DSL built on top of JDBC".</li>
+<li>Provides compile-time checking and type-safety for queries
+
+<ul>
+<li>Database entities have static types.</li>
+</ul>
+</li>
+<li>Uses relational algebra and query comprehensions</li>
+<li>Can be composed, the way one can compose Scala's collection classes.</li>
+<li>Does not rely on mutable state.</li>
+<li>Supports PostgreSQL, MySQL, H2, HSQLDB/HyperSQL, Derby/JavaDB,
+MS SQL Server, MS Access, and SQLite. Other RDBMs are supported, but
+with possibly reduced functionality.</li>
+</ul>
+
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/4">
+<h1>Making a Connection</h1>
+
+<p>ScalaQuery requires an underlying JDBC connection.</p>
+
+<p>All DB calls go through a <code>Session</code>, which is obtained from a <code>Database</code>,
+using a standard JDBC URL.</p>
+
+<pre><code>import org.scalaquery.session._
+import org.scalaquery.session.Database.threadLocalSession
+
+val db = Database.forURL(
+  "jdbc:h2:mem:test1;DB_CLOSE_DELAY=-1",
+  driver = "org.h2.Driver"
+)
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/5">
+<h1>Using the Session</h1>
+
+<p>Implicitly:</p>
+
+<pre><code>val myQuery = ...
+db withSession {
+  myQuery.list()
+}
+</code></pre>
+
+<p>Explicitly:</p>
+
+<pre><code>val myQuery = ...
+db withSession { session =&gt;
+  myQuery.list()(session)
+}
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/6">
+<h1>Schema, redux</h1>
+
+<p>Part of our schema (in SQLite-speak):</p>
+
+<pre><code>CREATE TABLE author (
+  id             INTEGER PRIMARY KEY,
+  last_name      VARCHAR(50) NOT NULL,
+  first_name     VARCHAR(50) NOT NULL,
+  middle_name    VARCHAR(50) NULL,
+  nationality    VARCHAR(100) DEFAULT 'US',
+  year_of_birth  VARCHAR(4)
+);
+
+CREATE TABLE book (
+  id           INTEGER PRIMARY KEY,
+  title        VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE bookauthor (
+  book_id   BIGINT NOT NULL,
+  author_id BIGINT NOT NULL,
+
+  PRIMARY KEY (book_id, author_id),
+  FOREIGN KEY (author_id) REFERENCES author(id),
+  FOREIGN KEY (book_id) REFERENCES book(id)
+);  
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/7">
+<h1>Mapping tables in ScalaQuery</h1>
+
+<p>For simple tables, use the <code>BasicTable</code> type:</p>
+
+<pre><code>import org.scalaquery.ql.basic.{BasicTable =&gt; Table}
+</code></pre>
+
+<p>For databases supporting extended features, use <code>ExtendedTable</code>:</p>
+
+<pre><code>import org.scalaquery.ql.extended.{ExtendedTable =&gt; Table}
+</code></pre>
+
+<p>We'll be using <code>ExtendedTable</code>, because auto-increment isn't supported
+in <code>BasicTable</code>. However, <code>ExtendedTable</code> only works if there's a specific
+ScalaQuery driver for the underlying database.</p>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/8">
+<h1>The Author table in ScalaQuery</h1>
+
+<pre><code>import org.scalaquery.ql.extended.{ExtendedTable =&gt; Table}
+import org.scalaquery.ql.TypeMapper._
+import org.scalaquery.ql._
+
+object Author
+extends Table[(Int, String, String, Option[String], String, Option[String])]("AUTHOR") {
+
+  def id = column[Int]("id", O NotNull, O PrimaryKey, O AutoInc)
+  def firstName = column[String](
+    "first_name", O NotNull, O DBType "varchar(50)"
+  )
+  def lastName = column[String](
+    "last_name", O NotNull, O DBType "varchar(50)"
+  )
+  def middleName = column[Option[String]](
+    "middle_name", O DBType "varchar(50)"
+  )
+  def nationality = column[String](
+    "nationality", O Default "US", O DBType "varchar(100)"
+  )
+  def birthYear = column[Option[String]](
+    "year_of_birth", O DBType "varchar(4)"
+  )
+
+  def * = id ~ firstName ~ lastName ~ middleName ~ nationality ~ birthYear
+}
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/9">
+<h1>A little more detail</h1>
+
+<p><code>first_name</code> is of type <code>String</code>, because it's not nullable:</p>
+
+<pre><code>def firstName = column[String](
+  "first_name", O NotNull, O DBType "varchar(50)"
+)
+</code></pre>
+
+<p><code>middle_name</code> is <code>Option[String]</code>, to handle the null case:</p>
+
+<pre><code>def middleName = column[Option[String]](
+  "middle_name", O DBType "varchar(50)"
+)
+</code></pre>
+
+<p><code>nationality</code> is of type <code>String</code>, because we've supplied a default, so
+it'll always have a value:</p>
+
+<pre><code>def nationality = column[String](
+  "nationality", O Default "US", O DBType "varchar(100)"
+)
+</code></pre>
+
+<p>Column options like <code>O NotNull</code> and <code>O Default</code> are used for creating tables
+via ScalaQuery. They can be omitted, if you create tables another way.</p>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/10">
+<h1>Telling ScalaQuery which methods correspond to columns</h1>
+
+<p>Since the columns are just normal Scala functions, you have to tell ScalaQuery
+which functions map to table columns. That's what the <code>def *</code> does:</p>
+
+<pre><code>// NOTE: SQLite tables are in upper case, and the driver doesn't upcase.
+object Author extends Table[(Int, String, Option[String])]("AUTHOR") {
+  ...
+
+  def * = id ~ firstName ~ lastName ~ middleName ~ nationality ~ birthYear
+}
+</code></pre>
+
+<p>Mnemonic: "<code>def *</code>" is like "<code>SELECT *</code>"</p>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/11">
+<h1>The Book and BookAuthor tables</h1>
+
+<p><code>Book</code> describes a book:</p>
+
+<pre><code>object Book extends Table[(Int, String)]("BOOK") {
+  def id = column[Int]("id", O NotNull, O PrimaryKey, O AutoInc)
+  def title = column[String](
+    "title", O NotNull, O DBType "varchar(100)"
+  )
+
+  def * = id ~ title
+}
+</code></pre>
+
+<p><code>BookAuthor</code> is the intersection table that links authors to their books.
+Note the foreign keys:</p>
+
+<pre><code>object BookAuthor extends Table[(Int, Int)]("BOOKAUTHOR") {
+  def authorID = column[Int]("author_id", O NotNull)
+  def bookID = column[Int]("book_id")
+
+  def fkAuthorID = foreignKey("fk_author_id", authorID, Author)(_.id)
+  def fkBookID = foreignKey("fk_book_id", bookID, Book)(_.id)
+
+  def * = authorID ~ bookID
+}
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/12">
+<h1>Queries</h1>
+
+<p>Queries are <em>for comprehensions</em>.</p>
+
+<p>For instance, let's load the names of all authors from the US.</p>
+
+<pre><code>import org.scalaquery.ql._
+import org.scalaquery.ql.extended.SQLiteDriver.Implicit._
+
+...
+
+val nameQuery = for (a &lt;- Author if a.nationality === "US")
+  yield a.lastName ~ a.firstName
+</code></pre>
+
+<p>The tilde construct (<code>a.lastName ~ a.firstName</code>) is a <em>column projection</em>.
+Only those columns are returned.</p>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/13">
+<h1>Queries</h1>
+
+<p>There are also convenience functions for filtering. e.g.:</p>
+
+<pre><code>val nameQuery = Author.where(_.nationality === "US")
+</code></pre>
+
+<p>Queries are <em>lazy</em>: They are built outside of a <code>Session</code> and do not touch
+the database until invoked.</p>
+
+<pre><code>db withSession {
+  val list: List[(String, String)] = nameQuery.list
+}
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/14">
+<h1>A simple query: Complete example</h1>
+
+<p>A complete working program, with the name query.</p>
+
+<pre><code>import org.scalaquery.ql.basic.BasicDriver.Implicit._
+import org.scalaquery.session._
+import org.scalaquery.session.Database.threadLocalSession
+
+object ShowAuthors {
+  def main(args: Array[String]) {
+    val db = Database.forURL("jdbc:sqlite:testdb.sqlite3",
+                             driver = "org.sqlite.JDBC")
+    var nationality = if (args.length == 0) "US" else args(0)
+    val nameQuery = for {a &lt;- Author if (a.nationality === nationality)}
+                      yield a.id ~ a.lastName ~ a.firstName
+    db withSession {
+      val list: List[(Int, String, String)] = nameQuery.list
+      for ((id, last, first) &lt;- list)
+          printf("%02d: %s, %s\n", id, last, first)
+    }
+  }
+}
+</code></pre>
+
+<p>Output, when run against against my test database:</p>
+
+<pre><code>$ scala -cp ... ShowAuthors US
+01: Sagan, Carl
+03: Spoon, Lex
+04: Venners, Bill
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/15">
+<h1>Implicit Joins</h1>
+
+<p>ScalaQuery's implicit joins are expressed with nested <code>for</code> comprehensions.</p>
+
+<p>For instance, to load all authors who actually have books, along with their
+books' titles, you might use this implicit join:</p>
+
+<pre><code>val q1 = for {a &lt;- Author
+              b &lt;- Book
+              ab &lt;- BookAuthor if (ab.bookID === b.id) &amp;&amp;
+                                  (ab.authorID === a.id)}
+           yield a.lastName ~ a.firstName ~ b.title
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/16">
+<h1>Explicit Joins</h1>
+
+<p>ScalaQuery also supports explicit joins. In fact, you can't do an outer
+join without using an explicit join.</p>
+
+<p>Issues with explicit joins:</p>
+
+<ul>
+<li>Explicit multi-way joins are broken. See this May 27 thread:
+<a href="https://groups.google.com/forum/#!topic/scalaquery/lgI1ADShEM8">https://groups.google.com/forum/#!topic/scalaquery/lgI1ADShEM8</a>.</li>
+<li>The syntax for explicit joins can quickly get complicated.</li>
+<li>Implicit joins are generally easier to read and construct.</li>
+</ul>
+
+
+<h2>Example</h2>
+
+<p>Again, load all authors who actually have books, this time without the
+titles (since that would require a multi-way explicit join, which is broken):</p>
+
+<pre><code>val q2 =
+  for {Join(a, ab) &lt;- Author innerJoin BookAuthor on (_.id is _.authorID)}
+    yield a.lastName ~ a.firstName
+</code></pre>
+
+<p>Note that, in the above query, authors with multiple books will occur
+multiple times in the result set.</p>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/17">
+<h1>COUNT, DISTINCT, GROUP BY</h1>
+
+<h2>COUNT, with GROUP BY</h2>
+
+<p>Count the number of authors for each book:</p>
+
+<pre><code>// SELECT COUNT(ba.author_id), b.title FROM book b, bookauthor ba
+// WHERE b.id = ba.book_id GROUP BY b.title`
+
+for {ba &lt;- BookAuthor
+     b  &lt;- Book if (ba.bookID === b.id)
+     _  &lt;- Query groupBy ba.bookID}
+
+  yield ba.authorID.count ~ b.title
+</code></pre>
+
+<p>(Personally, I find this syntax to be somewhat counterintuitive.)</p>
+
+<h2>DISTINCT</h2>
+
+<p>There doesn't appear to be a <code>SELECT DISTINCT</code> equivalent, though
+there <em>is</em> a <code>COUNT(DISTINCT column)</code>:</p>
+
+<pre><code>for (ba &lt;- BookAuthor) yield ba.author_id.countDistinct
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/18">
+<h1>Inserts</h1>
+
+<p>Use <code>insert</code> to insert a single row. If you use <code>insert</code> on the main
+table object, you have to specify all columns, even <code>AutoInc</code> ones:</p>
+
+<pre><code>Author insert (10, "Vonnegut", "Kurt", None, "US", None)
+</code></pre>
+
+<p>You can also use column projections, to specify just some of the columns:</p>
+
+<pre><code>Author.lastName ~ Author.firstName insert ("Vonnegut", "Kurt") 
+</code></pre>
+
+<p><code>insertAll</code> inserts multiple rows at once:</p>
+
+<pre><code>Author.lastName ~ Author.firstName insertAll(
+  ("Vonnegut", "Kurt"),
+  ("Twain", "Mark")
+)
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/19">
+<h1>Updates</h1>
+
+<p>When a query returns a projection of columns, you can use it to update
+the rows selected by the query:</p>
+
+<pre><code>object UpdateAuthor {
+  def run(lastNameToFind: String, newNationality: String) = {
+      val db = Database.forURL("jdbc:sqlite:testdb.sqlite3",
+                               driver = "org.sqlite.JDBC")
+
+      db withSession {
+        show("*** BEFORE:", lastNameToFind)
+
+        val q2 = for {a &lt;- Author if a.lastName === lastNameToFind}
+                   yield a.nationality
+        q2.update(newNationality)
+
+        show("*** AFTER:", lastNameToFind)
+    }
+  }
+
+  def show(prefix: String, lastName: String) = {
+    val q1 = for {a &lt;- Author if a.lastName === lastName}
+               yield a.firstName ~ a.lastName ~ a.nationality
+    println(prefix)
+    for (rs &lt;- q1.list)
+      printf("%s %s: %s\n", rs._1, rs._2, rs._3)
+  }
+}
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/20">
+<h1>Updates: Example run</h1>
+
+<p>Example run:</p>
+
+<pre><code>scala&gt; UpdateAuthor.run("Vonnegut", "US")
+*** BEFORE:
+Kurt Vonnegut: CA
+Mrs. Vonnegut: CA
+*** AFTER:
+Kurt Vonnegut: US
+Mrs. Vonnegut: US
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/21">
+<h1>Parameterized Queries (Keeping Little Bobby Tables at bay)</h1>
+
+<p><img src="exploits_of_a_mom.png" class="illustration" note="final slash needed"/></p>
+
+<p>ScalaQuery uses <em>query templates</em> for parameterized queries. For example:</p>
+
+<pre><code>object ShowAuthorsByNameAndCountry {
+  def run(lastName: String, nationality: String) = {
+    // Create a parameterized query template with one parameter.
+    val qt = for {lnc ~ cc &lt;- Parameters[String, String]
+                  a &lt;- Author if a.lastName === lnc &amp;&amp; a.nationality === cc}
+                 yield a.id ~ a.lastName ~ a.firstName ~ a.nationality
+
+    // Instantiate and run.
+    db withSession {
+      for (rs &lt;- qt((lastName, countryCode)))
+        printf("%02d: %s %s (%s)\n", rs._1, rs._3, rs._2, rs._4)
+    }
+}
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/22">
+<h1>Examples of some complex statements</h1>
+
+<p>Using a lifted function to group by day of week</p>
+
+<pre><code>val SalesPerDay = new Table[(Date, Int)]("SALES_PER_DAY") {
+  def day = column[Date]("DAY", O.PrimaryKey)
+  def count = column[Int]("COUNT")
+  def * = day ~ count
+}
+
+val q = for {
+    dow ~ count &lt;- SalesPerDay.map(s =&gt; dayOfWeek2(s.day) ~ s.count)
+    _ &lt;- Query groupBy dow
+  } yield dow ~ count.sum.get
+
+q.foreach { case (dow, sum) =&gt; println(" " + dow + " -&gt; " + sum) }
+</code></pre>
+
+<p>Delete all users with a specific email address</p>
+
+<pre><code>var emailToDelete = ...
+var q = for {u &lt;- Users if u.email === emailToDelete} yield u.id 
+users.foreach(u =&gt; {
+  UserTopics.where(_.user_id === u).delete
+})
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/23">
+<h1>Miscellaneous</h1>
+
+<h2>Creating tables</h2>
+
+<p>ScalaQuery can create tables:</p>
+
+<pre><code>db withSession {
+    (Author.ddl ++ Book.ddl ++ BookAuthor.ddl) create
+}
+</code></pre>
+
+<h2>Printing a generated query</h2>
+
+<pre><code>val q = for (a &lt;- Author if a.nationality === "US")
+  yield a.last_name ~ a.first_name
+println(q.selectStatement)
+</code></pre>
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/24">
+<h1>My Impressions</h1>
+
+<h2>Pros</h2>
+
+<ul>
+<li>Powerful</li>
+<li>Strong type safety</li>
+<li>Highly composable</li>
+</ul>
+
+
+<h2>Cons</h2>
+
+<ul>
+<li>Potentially less readable than, say, Squeryl</li>
+<li>Documentation is poor
+
+<ul>
+<li>No documentation on <em>scalaquery.org</em></li>
+<li>Minimal docs on official GitHub wiki</li>
+<li>Additional docs scattered throughout Stefan Zeiger's blog.</li>
+<li>The mailing list archives sometimes help</li>
+<li>Prepare to spend time Googling and poring through the source code.</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div><div class="slide" data-transition="fade"><div class="content smbullets incremental" ref="preso/sq/25">
+<h1>My Impressions (cont'd)</h1>
+
+<ul>
+<li>Would I use it? Sure.</li>
+<li>Would it be my first choice? I'll let you know, after I see everyone
+else's presentations.</li>
+</ul>
+
+</div>
+</div><div class="slide" data-transition="fade"><div class="content" ref="preso/sq/26">
+<h1>Additional info</h1>
+
+<ul>
+<li>This presentation and some sample code can be found at
+<a href="https://github.com/bmc/phase-scala-orms/tree/master/ScalaQuery">https://github.com/bmc/phase-scala-orms/tree/master/ScalaQuery</a></li>
+<li>ScalaQuery's GitHub repo: <a href="https://github.com/szeiger/scala-query">https://github.com/szeiger/scala-query</a></li>
+<li>ScalaQuery's web site: <a href="http://scalaquery.org/">http://scalaquery.org/</a></li>
+<li>The Google Groups group: <a href="http://groups.google.com/group/scalaquery">http://groups.google.com/group/scalaquery</a></li>
+<li>"scalaquery" tag on StackOverflow:
+<a href="http://stackoverflow.com/questions/tagged/scalaquery">http://stackoverflow.com/questions/tagged/scalaquery</a> (not much there)</li>
+</ul>
+
+
+<p><em>I created this presentation with Scott Chacon's ShowOff tool. See
+<a href="https://github.com/schacon/showoff">https://github.com/schacon/showoff</a>.</em></p>
+</div>
+</div></div>
+
+</body>
+</html>
