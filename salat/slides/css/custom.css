@@ -9,11 +9,12 @@ img {
 }
 */
 
-img.logo {
+img {
   position: absolute;
   right: 10px;
   bottom: 10px;
 }
+
 
 * {
   font-family: Arial !important,sans-serif;

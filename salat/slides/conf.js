@@ -1,5 +1,5 @@
 {
-  "title": "Salat in Four Minutes",
+  "title": "Salat in Fifteen Minutes",
   "sections": [
     "sectionone"
   ]

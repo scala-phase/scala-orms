@@ -22,11 +22,7 @@
     - Moving parts
     - What Scala types can it handle?
 - SalatDAO
-- Advanced Usage
-    - Trait or abstract class with @Salat
-    - @Key
-    - @Persist
-    - Roll your own context
+- Using SalatDAO to show a relationship between `Book` and `Author`
 - More information
 
 
@@ -236,7 +232,7 @@ For more information on how to write and use BSON encoding hooks, see the Casbah
 - classes that are not case classes
 - Java classes
 - case classes nested inside an enclosing class or trait (Cake pattern - coming soon)
-- Arrays
+- Arrays (oy)
 
 !SLIDE
 
@@ -283,32 +279,36 @@ By extending `SalatDAO`, you can do the following out of box:
 
 # SalatDAO: insert and find
 
-  scala> val a = Author(firstName = "Charles", lastName = "Dickens")
-  a: prasinous.model.Author = Author(4dfa8853cf55223e5c15a203,Dickens,Charles,None,
-    None,None)
+    scala> val a = Author(firstName = "Charles", lastName = "Dickens")
+    a: prasinous.model.Author = Author(4dfa8853cf55223e5c15a203,Dickens,Charles,None,
+      None,None)
 
-  scala> val _id = AuthorDAO.insert(a)
-  54 [Thread-51] INFO prasinous.DB$ - loaded config from file:/home/rose/workspace/scala-orms/salat/target/scala_2.9.0-1/test-resources/phase.conf
-  197 [Thread-51] INFO prasinous.collections$ - unique index: author by: { "firstName" : 1 , "lastName" : 1}
-  217 [Thread-51] INFO prasinous.collections$ - unique index: books by: { "title" : 1}
-  219 [Thread-51] INFO prasinous.collections$ - unique index: book_author by: { "bookId" : 1 , "authorId" : 1}
-  220 [Thread-51] INFO prasinous.collections$ - unique index: borrowal by: { "bookId" : 1 , "borrowerId" : 1 , "scheduledToReturnOn" : 1}
-  _id: Option[com.mongodb.casbah.Imports.ObjectId] = Some(4dfa8853cf55223e5c15a203)
+    scala> val _id = AuthorDAO.insert(a)
+    54 [Thread-51] INFO prasinous.DB$ - loaded config from file:
+      /home/rose/workspace/scala-orms/salat/target/scala_2.9.0-1/test-resources/phase.conf
+    197 [Thread-51] INFO prasinous.collections$ - unique index: author by: { "firstName" : 1 , 
+      "lastName" : 1}
+    217 [Thread-51] INFO prasinous.collections$ - unique index: books by: { "title" : 1}
+    219 [Thread-51] INFO prasinous.collections$ - unique index: book_author by: { "bookId" : 1 , 
+      "authorId" : 1}
+    220 [Thread-51] INFO prasinous.collections$ - unique index: borrowal by: { "bookId" : 1 , 
+      "borrowerId" : 1 , "scheduledToReturnOn" : 1}
+    _id: Option[com.mongodb.casbah.Imports.ObjectId] = Some(4dfa8853cf55223e5c15a203)
 
-  scala> val a_* = AuthorDAO.findOneByID(new ObjectId("4dfa8853cf55223e5c15a203"))
-  a_*: Option[prasinous.model.Author] = Some(Author(4dfa8853cf55223e5c15a203,Dickens,
-    Charles,None,None,None))
+    scala> val a_* = AuthorDAO.findOneByID(new ObjectId("4dfa8853cf55223e5c15a203"))
+    a_*: Option[prasinous.model.Author] = Some(Author(4dfa8853cf55223e5c15a203,Dickens,
+      Charles,None,None,None))
 
-  scala> val a_* = AuthorDAO.findOne(MongoDBObject("lastName" -> "Dickens"))
-  a_*: Option[prasinous.model.Author] = Some(Author(4dfa8853cf55223e5c15a203,Dickens,
-    Charles,None,None,None))
+    scala> val a_* = AuthorDAO.findOne(MongoDBObject("lastName" -> "Dickens"))
+    a_*: Option[prasinous.model.Author] = Some(Author(4dfa8853cf55223e5c15a203,Dickens,
+      Charles,None,None,None))
 
 !SLIDE
 
-# SalatDAO: update
+# SalatDAO: update and save
 
     scala> AuthorDAO.update(MongoDBObject("_id" -> a.id), a.copy(yearOfBirth = Some(1813)), 
-      false, false, new WriteConcern)
+      upsert = false, multi = false, new WriteConcern)
 
     scala> AuthorDAO.findOneByID(new ObjectId("4dfa8853cf55223e5c15a203"))
     res12: Option[prasinous.model.Author] = Some(Author(4dfa8853cf55223e5c15a203,
@@ -336,33 +336,38 @@ By extending `SalatDAO`, you can do the following out of box:
 
 So we can serialize and deserialize `Author` and `Book` - but how can we find what books
 an author has written or how many authors a book has?
+<br/>
+<br/>
+Disclaimer: This approach is not particularly idiomatic to MongoDB, but was shown 
+to demonstrate how using SalatDAO with child collections can ease a traditional SQL 
+approach shown in the `bookauthor` table definition below.
 
-//  CREATE TABLE bookauthor (
-//    book_id BIGINT NOT NULL,
-//    author_id BIGINT NOT NULL,
-//
-//    PRIMARY KEY (book_id, author_id),
-//    FOREIGN KEY (author_id) REFERENCES author(id),
-//    FOREIGN KEY (book_id) REFERENCES book(id)
-//  );
+    //  CREATE TABLE bookauthor (
+    //    book_id BIGINT NOT NULL,
+    //    author_id BIGINT NOT NULL,
+    //
+    //    PRIMARY KEY (book_id, author_id),
+    //    FOREIGN KEY (author_id) REFERENCES author(id),
+    //    FOREIGN KEY (book_id) REFERENCES book(id)
+    //  );
 
 
-case class BookAuthor(@Key("_id") id: ObjectId = new ObjectId,
-                      bookId: ObjectId,
-                      authorId: ObjectId)
+    case class BookAuthor(@Key("_id") id: ObjectId = new ObjectId,
+                          bookId: ObjectId,
+                          authorId: ObjectId)
                       
 !SLIDE
 
 # Now add a child collection to AuthorDAO
 
-object AuthorDAO extends SalatDAO[Author, ObjectId](collection = db.author) {
+    object AuthorDAO extends SalatDAO[Author, ObjectId](collection = db.author) {
 
-  class BookAuthorCollection(collection: MongoCollection, parentIdField: String)
-    extends ChildCollection[BookAuthor, ObjectId](collection, parentIdField)
+      class BookAuthorCollection(collection: MongoCollection, parentIdField: String)
+        extends ChildCollection[BookAuthor, ObjectId](collection, parentIdField)
 
-  val bookAuthor = new BookAuthorCollection(collection = db.bookAuthor, parentIdField = "authorId")
+      val bookAuthor = new BookAuthorCollection(collection = db.bookAuthor, parentIdField = "authorId")
 
-}
+    }
 
 !SLIDE
 
@@ -402,7 +407,24 @@ object AuthorDAO extends SalatDAO[Author, ObjectId](collection = db.author) {
 
 !SLIDE
 
-# Now use it for something interesting
+# Projections
+
+    scala> BookDAO.primitiveProjection[String](MongoDBObject(), "title")
+      res14: Option[String] = Some(The Demon-Haunted World: Science as a Candle in the Dark)
+
+    scala> BookDAO.primitiveProjections[String](MongoDBObject(), "title").sorted
+    res11: List[String] = List(Cosmos, J'Accuse, L'Assommoir, La Bête humaine, 
+      Programming in Scala, The Demon-Haunted World: Science as a Candle in the Dark)
+
+
+Salat supports two types of projections:
+
+- case classes
+- "primitive" types where deserialization is handled by BSON
+
+!SLIDE
+
+# Projections + child collections
 
     def booksByAuthor(author: Author): List[Book] = {
       val bookIds = bookAuthor.primitiveProjectionsByParentId[ObjectId](parentId = author.id, field = "bookId")
@@ -421,16 +443,31 @@ object AuthorDAO extends SalatDAO[Author, ObjectId](collection = db.author) {
     res13: List[prasinous.model.Book] = List(Book(4dfa9654cf553f152cb73f81,J'Accuse), 
       Book(4dfa9668cf553f152cb73f83,L'Assommoir), Book(4dfa9558cf553f152cb73f7f,La Bête humaine))
 
+
 !SLIDE
 
-# Projections
+# Does a child collection really have to be a child collection?
 
-    scala> BookDAO.primitiveProjection[String](MongoDBObject(), "title")
-      res14: Option[String] = Some(The Demon-Haunted World: Science as a Candle in the Dark)
+No!
 
-    scala> BookDAO.primitiveProjections[String](MongoDBObject(), "title").sorted
-    res11: List[String] = List(Cosmos, J'Accuse, L'Assommoir, La Bête humaine, 
-      Programming in Scala, The Demon-Haunted World: Science as a Candle in the Dark)
+    object BookDAO extends SalatDAO[Book, ObjectId](collection = db.book) {
+
+      class BookAuthorCollection(collection: MongoCollection, parentIdField: String)
+        extends ChildCollection[BookAuthor, ObjectId](collection, parentIdField)
+
+      class BorrowalCollection(collection: MongoCollection, parentIdField: String)
+        extends ChildCollection[Borrowal, ObjectId](collection, parentIdField)
+
+      val bookAuthor = new BookAuthorCollection(collection = db.bookAuthor, parentIdField = "bookId")
+      val borrowal = new BorrowalCollection(collection = db.borrowal, parentIdField = "bookId")
+
+      def authorsForBook(book: Book): List[Author] = {
+        val bookIds = bookAuthor.primitiveProjectionsByParentId[ObjectId](parentId = book.id, field = "authorId")
+        AuthorDAO.find(ref = MongoDBObject("_id" -> MongoDBObject("$in" -> MongoDBList(bookIds: _*))))
+          .sort(MongoDBObject("lastName" -> 1))
+          .toList
+      }
+    }
 
 !SLIDE
 
