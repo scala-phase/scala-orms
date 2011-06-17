@@ -1,4 +1,4 @@
-Materials for the upcoming [PHASE][] [talk on Scala ORMs][].
+Materials for the June 16, 2011, [PHASE][] [talks on Scala ORMs][].
 
 [PHASE]: http://www.meetup.com/scala-phase/
-[talk on Scala ORMs]: http://www.meetup.com/scala-phase/events/19943101/
+[talks on Scala ORMs]: http://www.meetup.com/scala-phase/events/19943101/
