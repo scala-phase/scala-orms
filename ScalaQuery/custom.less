@@ -1,0 +1,117 @@
+// Variables
+
+// @font-size: 54px;
+@code-font-size: 19px;
+@font-size: 40px;
+
+// Mixins
+
+.gradient (@gradient-top: #ffffff, @gradient-bottom: #4aa5ff) {
+  background: @gradient-top; /* Old browsers */
+  background: -moz-linear-gradient(top, @gradient-top 0%, @gradient-bottom 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,@gradient-top), color-stop(100%,@gradient-bottom)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, @gradient-top 0%,@gradient-bottom 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, @gradient-top 0%,@gradient-bottom 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, @gradient-top 0%,@gradient-bottom 100%); /* IE10+ */
+  background: linear-gradient(to bottom, @gradient-top 0%,@gradient-bottom 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='@gradient-top', endColorstr='@gradient-bottom',GradientType=0 ); /* IE6-9 */
+}
+
+.code-block () {
+  font-size: @code-font-size !important;
+  font-family: Mensch, Consolas, Courier, monospace;
+  line-height: 120%;
+  margin-left: 30px;
+}
+
+// Rules
+
+html {
+}
+
+body {
+  margin-left: 40px;
+}
+
+.section {
+
+  .gradient ();
+
+  &.first-slide {
+    #logo {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+    h1 {
+      margin-left: 130px;
+      margin-top: 20px;
+    }
+
+    p {
+      margin-top: 100px !important;
+      text-align: center;
+      line-height: 120%;
+    }
+  }
+
+  p {
+    line-height: 120% !important;
+    font-size: @font-size;
+
+    code {
+      font-size: @font-size - 2px !important;
+    }
+  }
+
+  ul {
+    font-size: @font-size;
+
+    li {
+      line-height: 120%;
+
+      ul {
+        li {
+          font-style: normal !important;
+        }
+      }
+    }
+  }
+
+  margin-top: 0 !important;
+
+  h1 {
+    /*
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    text-align: center;
+    margin-top: 50px;
+    */
+    vertical-align: top;
+  }
+
+  code.url {
+    font-size: @font-size - 5px !important;
+  }
+
+  pre {
+    .code-block ();
+
+/*
+    &.sourceCode {
+      width: 70%;
+      margin-left: auto;
+      margin-right: auto;
+      border: 1px solid black !important;
+      background: white !important;
+    }
+    */
+  }
+}
+
+.centered {
+  margin-left: auto;
+  margin-right: auto;
+  width: auto;
+}

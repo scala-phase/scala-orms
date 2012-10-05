@@ -4,50 +4,28 @@ This directory contains source for the [ScalaQuery][] portion of the
 # Slides
 
 The slides are written in Markdown and are intended to be run through
-(i.e., served by) [ShowOff][].
+[Pandoc][], via the Rakefile.
 
-## Running the slide show from source
+Requires the following software:
 
-To run the slideshow, you need the following bits:
+* [Ruby][]
+* The [Rake][] build tool
+* John MacFarlane's excellent [Pandoc][] tool
+* The `lessc` command, to process the [LESS][] stylesheets.
 
-* A [Ruby][] installation. 1.8.7 will do fine.
-* [RubyGems][].
-* The [Rake][] gem.
-* The [ShowOff][] gem. Installing ShowOff installs its dependencies.
-* The [Sass][] gem. (I maintain the CSS files as Sass files. It makes Life
-  with CSS a lot more tolerable.)
+Once you have all that stuff handy, simply run:
 
-These optional bits can also come in handy:
+    $ rake
 
-* [PDFKit][], for generating PDF handouts.
-* [RMagick][], which allows ShowOff to resize images.
-* The Mongrel web server. (ShowOff will use Webrick, by default.)
-  Install via `gem install mongrel`.
-  
-Once you have accumulated all that baggage, you can build and run the
-slideshow with:
+to build `slides.html`, a fully self-contained [Slidy][] slide show. Just
+open the file in your browser, and away you go.
 
-    $ rake run
+You'll find the source for the slides in `slides.md`, a Markdown file.
+For more information on using [Pandoc][] for slide generation, see
+<http://johnmacfarlane.net/pandoc/README.html#producing-slide-shows-with-pandoc>.
 
-You can also run the slideshow like this:
-
-    $ showoff serve
-
-ShowOff regenerates edited slides automatically, so you don't need to
-restart ShowOff if you're just editing the slides. Reloading the browser
-page is sufficient to display the changes. However, if you're modifying the
-Sass CSS sources, ShowOff won't know to regenerate the corresponding CSS
-files, so you have to kill ShowOff, rebuild the CSS files, and restart.
-`rake run` handles rebuilding everything that needs to be rebuilt, before
-starting ShowOff.
-
-[ShowOff][] starts a web server listening on port 9090. Surf to that port,
-to run the slide show.
-
-## Static Slideshow
-
-For convenience (and so you don't have to load up all that Ruby stuff),
-a static, pre-generated version of the slide show is in the `static` directory.
+You can view a pre-built version of this presentation at
+<http://www.ardentex.com/publications/the-play-framework/>.
 
 # Sample Code
 
@@ -57,13 +35,12 @@ was tested against a locally built 0.9.5-SNAPSHOT version of ScalaQuery,
 compiled against Scala 2.8.1.
 
 [ScalaQuery]: http://scalaquery.org/
-[ShowOff]: https://github.com/schacon/showoff
 [PHASE]: http://www.meetup.com/scala-phase
-[Scala]: http://www.scala-lang.org/
-[Ruby]: http://www.ruby-lang.org/
-[RubyGems]: http://rubygems.org/
-[Sass]: http://sass-lang.com/
-[Rake]: http://rake.rubyforge.org/
-[PDFKit]: https://github.com/jdpace/PDFKit
-[RMagick]: http://rmagick.rubyforge.org/
 [SBT]: http://code.google.com/p/simple-build-tool
+[Ruby]: http://www.ruby-lang.org/
+[Rake]: http://rake.rubyforge.org/
+[Bundler]: http://gembundler.com/
+[LESS]: http://lesscss.org/
+[Pandoc]: http://johnmacfarlane.net/pandoc/
+[PHASE]: http://scala-phase.org/
+[Slidy]: http://www.w3.org/Talks/Tools/Slidy/
